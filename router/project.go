@@ -81,7 +81,7 @@ func DeleteProject(c echo.Context) error {
 	app := c.(App)
 	errResponseText := "Couldn't delete project"
 
-	projectId, err := strconv.Atoi(app.QueryParam("id"))
+	projectId, err := strconv.Atoi(app.Param("id"))
 
 	if err != nil {
 		log.Fatalf("couldn't convert id param: %v", err)
