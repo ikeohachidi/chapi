@@ -23,15 +23,21 @@ func Index(c echo.Context) error {
 	return nil
 }
 
-func CreateProjects(c echo.Context) error {
+func CreateProject(c echo.Context) error {
 	app := c.(App)
 	name := app.QueryParam("name")
 
 	if name == "" {
+		log.Error("name query parameter is not defined")
 		return c.JSON(http.StatusBadGateway, Response{"Bad Request", false})
 	}
 
-	id, err := app.Db.CreateProject(name)
+	if app.User.Id == 0 {
+		log.Error("user id doesn't exist")
+		return c.JSON(http.StatusBadRequest, Response{"Couldn't get user projects", false})
+	}
+
+	id, err := app.Db.CreateProject(name, app.User.Id)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, Response{
 			Data:       "couldn't save project",
@@ -47,13 +53,13 @@ func GetUserProjects(c echo.Context) error {
 	app := c.(App)
 
 	if app.User.Id == 0 {
-		log.Error("error: user id doesn't exist")
+		log.Error("user id doesn't exist")
 		return c.JSON(http.StatusBadRequest, Response{"Couldn't get user projects", false})
 	}
 
 	projects, err := app.Db.GetUserProjects(app.User.Id)
 	if err != nil {
-		log.Errorf("error: couldn't retrieve user projects: %v", err)
+		log.Errorf("couldn't retrieve user projects: %v", err)
 		return c.JSON(http.StatusBadRequest, Response{"Couldn't get user projects", false})
 	}
 
@@ -83,7 +89,7 @@ func DeleteProject(c echo.Context) error {
 	}
 
 	if app.User.Id == 0 {
-		log.Error("error: user id doesn't exist")
+		log.Error("user id doesn't exist")
 		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
 	}
 

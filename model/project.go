@@ -3,13 +3,13 @@ package model
 type Project struct {
 	Id        uint    `json:"id" db:"id"`
 	Name      string  `json:"name" db:"name"`
-	UserId    string  `json:"userId" db:"user_id"`
+	UserId    uint    `json:"userId" db:"user_id"`
 	CreatedAt string  `json:"createdAt" db:"created_at"`
 	Routes    []Route `json:"routes" db:"routes"`
 }
 
-func (conn *Conn) CreateProject(name string) (projectId uint, err error) {
-	stmt, err := conn.db.Preparex("INSERT INTO project (name) values($1) RETURNING id")
+func (conn *Conn) CreateProject(name string, userId uint) (projectId uint, err error) {
+	stmt, err := conn.db.Preparex("INSERT INTO project (name, user_id) values($1, $2) RETURNING id")
 	if err != nil {
 		return
 	}
@@ -32,7 +32,7 @@ func (conn *Conn) ListProjects() (projects []Project, err error) {
 	return
 }
 
-func (conn *Conn) GetUserProjects(userId string) (projects []Project, err error) {
+func (conn *Conn) GetUserProjects(userId uint) (projects []Project, err error) {
 	query := `
 		SELECT p.*, r.*, q.*
 		FROM project as p WHERE user_id = $1
