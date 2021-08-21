@@ -10,6 +10,7 @@ type Route struct {
 	Destination string    `json:"destination" db:"destination"`
 	Body        string    `json:"body" db:"body"`
 	CreatedAt   time.Time `json:"created_at" db:"created_at"`
+	Queries     []Query   `json:"queries" db:"queries"`
 }
 
 func (c *Conn) SetRoute(route Route) (routeId uint, err error) {
