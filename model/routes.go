@@ -1,4 +1,4 @@
-package models
+package model
 
 import "time"
 
@@ -40,10 +40,6 @@ func (c *Conn) SetRoute(route Route) (routeId uint, err error) {
 
 func (c *Conn) DeleteRoute(routeId uint) (err error) {
 	_, err = c.db.Exec("DELETE FROM routes WHERE id=$1", routeId)
-
-	if err != nil {
-		return
-	}
 
 	return
 }

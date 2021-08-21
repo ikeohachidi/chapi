@@ -1,10 +1,16 @@
-package models
+package model
 
 var schema = `
+CREATE TABLE IF NOT EXISTS user (
+	id 			SERIAL PRIMARY KEY,
+	email	 	VARCHAR(30) NOT NULL,
+	created_at 	TIMESTAMP WITH TIME ZONE DEFAULT NOW() 
+)
+
 CREATE TABLE IF NOT EXISTS project (
-	id  		SERIAL PRIMARY KEY ON DELETE CASCADE,
+	id  		SERIAL PRIMARY KEY,
+	user_id 	INTEGER REFERENCES user(id) ON DELETE CASCADE,
 	name 		TEXT NOT NULL UNIQUE,
-	user_id 	INTEGER NOT NULL,
 	created_at	TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 

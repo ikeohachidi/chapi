@@ -1,4 +1,4 @@
-package models
+package model
 
 type Project struct {
 	Id     uint   `json:"id" db:"id"`

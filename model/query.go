@@ -1,4 +1,4 @@
-package models
+package model
 
 type Query struct {
 	Id    uint   `json:"id" db:"id"`
@@ -34,10 +34,6 @@ func (c *Conn) SetQuery(query Query) (queryId uint, err error) {
 
 func (c *Conn) DeleteQuery(queryId uint) (err error) {
 	_, err = c.db.Exec("DELETE FROM query WHERE id=$1", queryId)
-
-	if err != nil {
-		return
-	}
 
 	return
 }
