@@ -65,8 +65,8 @@ func OauthGithubRedirect(c echo.Context) {
 
 	// set cookie
 	session, _ := store.Get(c.Request(), "chapi_session")
-	session.Values["user_id"] = userID
-	session.Values["user_email"] = user.Email
+	session.Values["id"] = userID
+	session.Values["email"] = user.Email
 	session.Values["access_token"] = token.AccessToken
 	session.Save(c.Request(), c.Response().Writer)
 
@@ -80,8 +80,8 @@ func Logout(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, Response{"Couldn't logout user", false})
 	}
 
-	delete(session.Values, "user_id")
-	delete(session.Values, "user_email")
+	delete(session.Values, "id")
+	delete(session.Values, "email")
 	delete(session.Values, "access_token")
 
 	deleteCookie := http.Cookie{
