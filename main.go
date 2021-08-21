@@ -47,5 +47,9 @@ func main() {
 	e.DELETE("/project/:id", router.DeleteProject)
 	e.GET("/project/all", router.ListProjects)
 
+	e.GET("/route/:projectID", router.GetProjectRoutes)
+	e.DELETE("/route", router.DeleteRoute)
+	e.POST("/route", router.SaveRoute)
+
 	e.Logger.Fatal(e.Start(":1333"))
 }

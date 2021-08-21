@@ -23,7 +23,7 @@ func (conn *Conn) CreateProject(name string, userId uint) (projectId uint, err e
 }
 
 func (conn *Conn) ListProjects() (projects []Project, err error) {
-	err = conn.db.Select(&projects, "SELECT * FROM projects")
+	err = conn.db.Select(&projects, "SELECT * FROM project")
 
 	return
 }

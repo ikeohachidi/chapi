@@ -13,7 +13,7 @@ type Route struct {
 	Queries     []Query   `json:"queries" db:"queries"`
 }
 
-func (c *Conn) SetRoute(route Route) (routeId uint, err error) {
+func (c *Conn) SaveRoute(route Route) (routeId uint, err error) {
 	stmt, err := c.db.Preparex(`
 		INSERT INTO routes (id, project_id, type, path, destination, body)
 		VALUES ($1, $2, $3, $4, $5, $6)
@@ -51,8 +51,8 @@ func (c *Conn) GetRoutesByProjectId(projectId uint) (routes []Route, err error) 
 	return
 }
 
-func (c *Conn) DeleteRoute(routeId uint) (err error) {
-	_, err = c.db.Exec("DELETE FROM routes WHERE id=$1", routeId)
+func (c *Conn) DeleteRoute(routeId uint, userId uint) (err error) {
+	_, err = c.db.Exec("DELETE FROM routes WHERE id=$1 AND user_id=$2", routeId, userId)
 
 	return
 }
