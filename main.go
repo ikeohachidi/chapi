@@ -42,6 +42,10 @@ func main() {
 		}
 	})
 
+	e.GET("/project", router.GetUserProjects)
 	e.POST("/project", router.CreateProject)
+	e.DELETE("/project/:id", router.DeleteProject)
+	e.GET("/project/all", router.ListProjects)
+
 	e.Logger.Fatal(e.Start(":1333"))
 }
