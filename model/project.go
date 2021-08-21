@@ -1,11 +1,10 @@
 package model
 
 type Project struct {
-	Id        uint    `json:"id" db:"id"`
-	Name      string  `json:"name" db:"name"`
-	UserId    uint    `json:"userId" db:"user_id"`
-	CreatedAt string  `json:"createdAt" db:"created_at"`
-	Routes    []Route `json:"routes" db:"routes"`
+	Id        uint   `json:"id" db:"id"`
+	Name      string `json:"name" db:"name"`
+	UserId    uint   `json:"userId" db:"user_id"`
+	CreatedAt string `json:"createdAt" db:"created_at"`
 }
 
 func (conn *Conn) CreateProject(name string, userId uint) (projectId uint, err error) {
@@ -29,20 +28,36 @@ func (conn *Conn) ListProjects() (projects []Project, err error) {
 	return
 }
 
-func (conn *Conn) GetUserProjects(userId uint) (projects []Project, err error) {
+// TODO: can't figure out how to retrieve this properly
+func (conn *Conn) GetProjects(userId uint) (projects []Project, err error) {
 	query := `
-		SELECT p.*, r.*, q.*
-		FROM project as p WHERE user_id = $1
-		INNER JOIN route AS r ON p.id = r.project_id
-		INNER JOIN query AS q ON r.id = q.route_id
+		SELECT	project.*, 
+				route.*, 
+				"query".*
+		FROM project
+		LEFT OUTER JOIN route ON project.id = route.project_id
+		LEFT OUTER JOIN "query" on route.id = "query".route_id
+		WHERE project.user_id = $1 
 	`
 	err = conn.db.Select(&projects, query, userId)
 
 	return
 }
 
+func (conn *Conn) GetUserProjects(userId uint) (projects []Project, err error) {
+	query := `SELECT * FROM project WHERE user_id = $1`
+
+	err = conn.db.Select(&projects, query, userId)
+
+	if err != nil {
+		return
+	}
+
+	return
+}
+
 func (conn *Conn) DeleteProject(projectId uint, userId uint) (err error) {
-	_, err = conn.db.Exec("DELETE FROM projects WHERE id=$1 AND user_id=$2", projectId, userId)
+	_, err = conn.db.Exec("DELETE FROM project WHERE id=$1 AND user_id=$2", projectId, userId)
 
 	return
 }

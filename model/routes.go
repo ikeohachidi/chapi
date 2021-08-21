@@ -39,6 +39,18 @@ func (c *Conn) SetRoute(route Route) (routeId uint, err error) {
 	return
 }
 
+func (c *Conn) GetRoutesByProjectId(projectId uint) (routes []Route, err error) {
+	query := `SELECT * FROM route WHERE project_id=$1`
+
+	err = c.db.Select(&routes, query, projectId)
+
+	if err != nil {
+		return
+	}
+
+	return
+}
+
 func (c *Conn) DeleteRoute(routeId uint) (err error) {
 	_, err = c.db.Exec("DELETE FROM routes WHERE id=$1", routeId)
 
