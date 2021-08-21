@@ -44,8 +44,8 @@ func (conn *Conn) GetUserProjects(userId string) (projects []Project, err error)
 	return
 }
 
-func (conn *Conn) DeleteProject(projectId uint) (err error) {
-	_, err = conn.db.Exec("DELETE FROM projects WHERE id=$1", projectId)
+func (conn *Conn) DeleteProject(projectId uint, userId uint) (err error) {
+	_, err = conn.db.Exec("DELETE FROM projects WHERE id=$1 AND user_id=$2", projectId, userId)
 
 	return
 }
