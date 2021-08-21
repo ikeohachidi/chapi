@@ -64,18 +64,18 @@ func OauthGithubRedirect(c echo.Context) {
 	errRedirect(c, "/", err)
 
 	// set cookie
-	session, _ := store.Get(c.Response(), "chapi_session")
+	session, _ := store.Get(c.Request(), "chapi_session")
 	session.Values["user_id"] = userID
 	session.Values["user_email"] = user.Email
 	session.Values["access_token"] = token.AccessToken
-	session.Save(c.Response(), c.Response().Writer)
+	session.Save(c.Request(), c.Response().Writer)
 
 	c.Redirect(http.StatusMovedPermanently, "/")
 }
 
 // Logout deletes a users session
 func Logout(c echo.Context) error {
-	session, err := store.Get(c.Response(), "chapi_session")
+	session, err := store.Get(c.Request(), "chapi_session")
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, Response{"Couldn't logout user", false})
 	}
