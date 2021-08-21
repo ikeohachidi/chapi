@@ -26,6 +26,7 @@ func Index(c echo.Context) error {
 func CreateProject(c echo.Context) error {
 	app := c.(App)
 	name := app.QueryParam("name")
+	errResponseText := "couldn't save project"
 
 	if name == "" {
 		log.Error("name query parameter is not defined")
@@ -34,13 +35,14 @@ func CreateProject(c echo.Context) error {
 
 	if app.User.Id == 0 {
 		log.Error("user id doesn't exist")
-		return c.JSON(http.StatusBadRequest, Response{"Couldn't get user projects", false})
+		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
 	}
 
 	id, err := app.Db.CreateProject(name, app.User.Id)
 	if err != nil {
+		log.Errorf("error creating project: %v", err)
 		return c.JSON(http.StatusInternalServerError, Response{
-			Data:       "couldn't save project",
+			Data:       errResponseText,
 			Successful: false,
 		})
 	}
