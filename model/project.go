@@ -1,9 +1,11 @@
 package model
 
 type Project struct {
-	Id     uint   `json:"id" db:"id"`
-	Name   string `json:"name" db:"name"`
-	UserId string `json:"-" db:"user_id"`
+	Id        uint    `json:"id" db:"id"`
+	Name      string  `json:"name" db:"name"`
+	UserId    string  `json:"userId" db:"user_id"`
+	CreatedAt string  `json:"createdAt" db:"created_at"`
+	Routes    []Route `json:"routes" db:"routes"`
 }
 
 func (conn *Conn) CreateProject(name string) (projectId uint, err error) {
@@ -31,7 +33,13 @@ func (conn *Conn) ListProjects() (projects []Project, err error) {
 }
 
 func (conn *Conn) GetUserProjects(userId string) (projects []Project, err error) {
-	err = conn.db.Select(&projects, "SELECT * FROM projects WHERE user_id=$1", userId)
+	query := `
+		SELECT p.*, r.*, q.*
+		FROM project as p WHERE user_id = $1
+		INNER JOIN route AS r ON p.id = r.project_id
+		INNER JOIN query AS q ON r.id = q.route_id
+	`
+	err = conn.db.Select(&projects, query, userId)
 
 	return
 }
