@@ -1,18 +1,29 @@
 package models
 
 var schema = `
-CREATE TABLE project (
+CREATE TABLE IF NOT EXISTS project (
 	id  		SERIAL PRIMARY KEY ON DELETE CASCADE,
 	name 		TEXT NOT NULL UNIQUE,
 	user_id 	INTEGER NOT NULL,
 	created_at	TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-)
+);
 
-CREATE TABLE routes (
+CREATE TYPE request_type AS ENUM ('GET', 'POST', 'PUT');
+
+CREATE TABLE IF NOT EXISTS route (
 	id  			SERIAL PRIMARY KEY,
+	project_id		INTEGER NOT NULL REFERENCES project(id) ON DELETE CASCADE,
+	type 			request_type DEFAULT 'GET',
 	path 			TEXT NOT NULL,
-	project_id		INTEGER NOT NULL,
-	request_body	TEXT,
-	created_at	TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-) 
+	destination 	TEXT NOT NULL,
+	body			TEXT,
+	created_at		TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS query (
+	id 				SERIAL PRIMARY KEY,
+	route_id		INTEGER REFERENCES query(id) ON DELETE CASCADE,
+	NAME 			VARCHAR(20) NOT NULL,
+	VALUE 			VARCHAR(50) NOT NULL
+)
 `
