@@ -73,16 +73,23 @@ func ListProjects(c echo.Context) error {
 
 func DeleteProject(c echo.Context) error {
 	app := c.(App)
+	errResponseText := "Couldn't delete project"
 
 	projectId, err := strconv.Atoi(app.QueryParam("id"))
 
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, Response{"Couldn't delete project", false})
+		log.Fatalf("couldn't convert id param: %v", err)
+		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
 	}
 
-	err = app.Db.DeleteProject(uint(projectId))
+	if app.User.Id == 0 {
+		log.Error("error: user id doesn't exist")
+		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
+	}
+
+	err = app.Db.DeleteProject(uint(projectId), app.User.Id)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, Response{"Couldn't delete project", false})
+		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
 	}
 
 	return c.JSON(http.StatusOK, Response{"Project deleted successfully", true})
