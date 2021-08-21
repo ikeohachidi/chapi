@@ -9,15 +9,12 @@ type Project struct {
 }
 
 func (conn *Conn) CreateProject(name string, userId uint) (projectId uint, err error) {
-	stmt, err := conn.db.Preparex("INSERT INTO project (name, user_id) values($1, $2) RETURNING id")
+	stmt, err := conn.db.Preparex(`INSERT INTO project ("name", user_id) values($1, $2) RETURNING id`)
 	if err != nil {
 		return
 	}
 
-	row, _ := stmt.Query(name)
-	if err != nil {
-		return
-	}
+	row := stmt.QueryRowx(name)
 
 	row.Scan(&projectId)
 
