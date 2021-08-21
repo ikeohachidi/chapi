@@ -7,8 +7,7 @@ import (
 
 type App struct {
 	echo.Context
-	Db   models.Conn
-	Lama string
+	Db models.Conn
 }
 
 type Response struct {
