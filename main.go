@@ -42,14 +42,18 @@ func main() {
 		}
 	})
 
+	e.GET("/auth/github", router.OauthGithub)
+	e.GET("/auth/github/redirect", router.OauthGithubRedirect)
+	e.GET("/auth/logout", router.Logout)
+
 	e.GET("/project", router.GetUserProjects)
+	e.GET("/project/all", router.ListProjects)
 	e.POST("/project", router.CreateProject)
 	e.DELETE("/project/:id", router.DeleteProject)
-	e.GET("/project/all", router.ListProjects)
 
 	e.GET("/route/:projectID", router.GetProjectRoutes)
-	e.DELETE("/route", router.DeleteRoute)
 	e.POST("/route", router.SaveRoute)
+	e.DELETE("/route", router.DeleteRoute)
 
 	e.GET("/query/:routeID", router.GetRouteQueries)
 	e.POST("/query", router.SaveQuery)
