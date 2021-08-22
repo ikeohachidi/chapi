@@ -9,4 +9,5 @@ require (
 	github.com/lib/pq v1.10.2
 	github.com/sirupsen/logrus v1.8.1
 	golang.org/x/oauth2 v0.0.0-20210819190943-2bc19b11175f
+	gopkg.in/yaml.v2 v2.2.4 // indirect
 )
