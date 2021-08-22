@@ -1,0 +1,78 @@
+package router
+
+import (
+	"encoding/json"
+	"net/http"
+	"strconv"
+
+	"github.com/ikeohachidi/chapi-be/model"
+	"github.com/labstack/echo/v4"
+	log "github.com/sirupsen/logrus"
+)
+
+func SaveQuery(c echo.Context) error {
+	app := c.(App)
+	errResponseText := "couldn't save query"
+
+	var query model.Query
+
+	err := json.NewDecoder(c.Request().Body).Decode(&query)
+	if err != nil {
+		log.Errorf("couldn't decode query request body: %v", err)
+		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
+	}
+
+	query.UserId = app.User.Id
+
+	err = app.Db.SaveQuery(&query)
+	if err != nil {
+		log.Errorf("error saving query to db: %v", err)
+		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
+	}
+
+	return c.JSON(http.StatusOK, Response{query, true})
+}
+
+func GetRouteQueries(c echo.Context) error {
+	app := c.(App)
+	errResponseText := "couldn't get route queries"
+
+	routeId, err := strconv.Atoi(c.Param("routeID"))
+	if err != nil {
+		log.Errorf("error converting route Id string to int: %v", err)
+		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
+	}
+
+	queries, err := app.Db.GetRouteQueries(uint(routeId), app.User.Id)
+	if err != nil {
+		log.Errorf("error getting route queries from db: %v", err)
+		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
+	}
+
+	return c.JSON(http.StatusOK, queries)
+}
+
+func DeleteRouteQuery(c echo.Context) error {
+	app := c.(App)
+	errResponseText := "couldn't delete route query"
+
+	queryId, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		log.Errorf("error converting query Id string to int: %v", err)
+		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
+	}
+
+	routeId, err := strconv.Atoi(c.QueryParam("routeId"))
+	if err != nil {
+		log.Errorf("error converting route Id string to int: %v", err)
+		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
+	}
+
+	err = app.Db.DeleteQuery(uint(queryId), uint(routeId), app.User.Id)
+	if err != nil {
+		log.Errorf("error running delete route query query: %v", err)
+		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
+	}
+
+	return c.JSON(http.StatusOK, Response{"query deleted successfully", true})
+}

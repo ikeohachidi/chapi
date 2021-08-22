@@ -51,5 +51,9 @@ func main() {
 	e.DELETE("/route", router.DeleteRoute)
 	e.POST("/route", router.SaveRoute)
 
+	e.GET("/query/:routeID", router.GetRouteQueries)
+	e.POST("/query", router.SaveQuery)
+	e.DELETE("/query/:id", router.DeleteRouteQuery)
+
 	e.Logger.Fatal(e.Start(":1333"))
 }
