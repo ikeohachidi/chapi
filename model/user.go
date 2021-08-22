@@ -3,12 +3,12 @@ package model
 import "time"
 
 type User struct {
-	Id        uint      `json:"id" db:"id"`
+	ID        uint      `json:"id" db:"id"`
 	Email     string    `json:"email" db:"email"`
 	CreatedAt time.Time `json:"created_at" db:"created_at"`
 }
 
-func (c *Conn) CreateUser(user User) (userId uint, err error) {
+func (c *Conn) CreateUser(user User) (userID uint, err error) {
 	stmt, err := c.db.Preparex(`
 		INSERT INTO user (id, email)
 		VALUES ($1, $2)
@@ -24,15 +24,15 @@ func (c *Conn) CreateUser(user User) (userId uint, err error) {
 		return
 	}
 
-	row.Scan(&userId)
+	row.Scan(&userID)
 
 	row.Close()
 
 	return
 }
 
-func (c *Conn) DeleteUser(userId uint) (err error) {
-	_, err = c.db.Exec("DELETE FROM user WHERE id=$1", userId)
+func (c *Conn) DeleteUser(userID uint) (err error) {
+	_, err = c.db.Exec("DELETE FROM user WHERE id=$1", userID)
 
 	return
 }

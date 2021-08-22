@@ -33,12 +33,12 @@ func CreateProject(c echo.Context) error {
 		return c.JSON(http.StatusBadGateway, Response{"Bad Request", false})
 	}
 
-	if app.User.Id == 0 {
+	if app.User.ID == 0 {
 		log.Error("user id doesn't exist")
 		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
 	}
 
-	id, err := app.Db.CreateProject(name, app.User.Id)
+	id, err := app.Db.CreateProject(name, app.User.ID)
 	if err != nil {
 		log.Errorf("error creating project: %v", err)
 		return c.JSON(http.StatusInternalServerError, Response{
@@ -54,12 +54,12 @@ func CreateProject(c echo.Context) error {
 func GetUserProjects(c echo.Context) error {
 	app := c.(App)
 
-	if app.User.Id == 0 {
+	if app.User.ID == 0 {
 		log.Error("user id doesn't exist")
 		return c.JSON(http.StatusBadRequest, Response{"Couldn't get user projects", false})
 	}
 
-	projects, err := app.Db.GetUserProjects(app.User.Id)
+	projects, err := app.Db.GetUserProjects(app.User.ID)
 	if err != nil {
 		log.Errorf("couldn't retrieve user projects: %v", err)
 		return c.JSON(http.StatusBadRequest, Response{"Couldn't get user projects", false})
@@ -83,19 +83,19 @@ func DeleteProject(c echo.Context) error {
 	app := c.(App)
 	errResponseText := "Couldn't delete project"
 
-	projectId, err := strconv.Atoi(app.Param("id"))
+	projectID, err := strconv.Atoi(app.Param("id"))
 
 	if err != nil {
 		log.Fatalf("couldn't convert id param: %v", err)
 		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
 	}
 
-	if app.User.Id == 0 {
+	if app.User.ID == 0 {
 		log.Error("user id doesn't exist")
 		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
 	}
 
-	err = app.Db.DeleteProject(uint(projectId), app.User.Id)
+	err = app.Db.DeleteProject(uint(projectID), app.User.ID)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
 	}

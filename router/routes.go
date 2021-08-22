@@ -22,21 +22,21 @@ func SaveRoute(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
 	}
 
-	routeId, err := app.Db.SaveRoute(route)
+	routeID, err := app.Db.SaveRoute(route)
 	if err != nil {
 		log.Errorf("couldn't save route %v", err)
 		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
 	}
 
-	return c.JSON(http.StatusOK, Response{routeId, true})
+	return c.JSON(http.StatusOK, Response{routeID, true})
 }
 
 func GetProjectRoutes(c echo.Context) error {
 	app := c.(App)
-	projectId, _ := strconv.Atoi(c.Param("projectID"))
+	projectID, _ := strconv.Atoi(c.Param("projectID"))
 	errResponseText := "couldn't retrieve project route"
 
-	routes, err := app.Db.GetRoutesByProjectId(uint(projectId))
+	routes, err := app.Db.GetRoutesByProjectId(uint(projectID))
 	if err != nil {
 		log.Errorf("couldn't retrieve project routes %v", err)
 		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
@@ -47,14 +47,14 @@ func GetProjectRoutes(c echo.Context) error {
 
 func DeleteRoute(c echo.Context) error {
 	app := c.(App)
-	routeId, _ := strconv.Atoi(c.Param("id"))
+	routeID, _ := strconv.Atoi(c.Param("id"))
 	errResponseText := "couldn't delete route"
 
-	if routeId == 0 {
+	if routeID == 0 {
 		return c.JSON(http.StatusBadRequest, nil)
 	}
 
-	err := app.Db.DeleteRoute(uint(routeId), app.User.Id)
+	err := app.Db.DeleteRoute(uint(routeID), app.User.ID)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, Response{errResponseText, false})
 	}

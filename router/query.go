@@ -22,7 +22,7 @@ func SaveQuery(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
 	}
 
-	query.UserId = app.User.Id
+	query.UserID = app.User.ID
 
 	err = app.Db.SaveQuery(&query)
 	if err != nil {
@@ -37,13 +37,13 @@ func GetRouteQueries(c echo.Context) error {
 	app := c.(App)
 	errResponseText := "couldn't get route queries"
 
-	routeId, err := strconv.Atoi(c.Param("routeID"))
+	routeID, err := strconv.Atoi(c.Param("routeID"))
 	if err != nil {
 		log.Errorf("error converting route Id string to int: %v", err)
 		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
 	}
 
-	queries, err := app.Db.GetRouteQueries(uint(routeId), app.User.Id)
+	queries, err := app.Db.GetRouteQueries(uint(routeID), app.User.ID)
 	if err != nil {
 		log.Errorf("error getting route queries from db: %v", err)
 		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
@@ -56,19 +56,19 @@ func DeleteRouteQuery(c echo.Context) error {
 	app := c.(App)
 	errResponseText := "couldn't delete route query"
 
-	queryId, err := strconv.Atoi(c.Param("id"))
+	queryID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		log.Errorf("error converting query Id string to int: %v", err)
 		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
 	}
 
-	routeId, err := strconv.Atoi(c.QueryParam("routeId"))
+	routeID, err := strconv.Atoi(c.QueryParam("routeId"))
 	if err != nil {
 		log.Errorf("error converting route Id string to int: %v", err)
 		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
 	}
 
-	err = app.Db.DeleteQuery(uint(queryId), uint(routeId), app.User.Id)
+	err = app.Db.DeleteQuery(uint(queryID), uint(routeID), app.User.ID)
 	if err != nil {
 		log.Errorf("error running delete route query query: %v", err)
 		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})

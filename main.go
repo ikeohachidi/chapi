@@ -29,7 +29,7 @@ func main() {
 
 			if _, ok := session.Values["access_token"]; ok {
 				user.Email = session.Values["email"].(string)
-				user.Id = session.Values["id"].(uint)
+				user.ID = session.Values["id"].(uint)
 			}
 
 			cc := router.App{
