@@ -4,25 +4,36 @@ import "time"
 
 type Route struct {
 	ID          uint      `json:"id" db:"id"`
-	ProjectID   uint      `json:"project_id" db:"project_id"`
+	ProjectID   uint      `json:"projectId" db:"project_id"`
+	UserID      uint      `json:"userId" db:"user_id"`
 	Type        string    `json:"type" db:"type"`
 	Path        string    `json:"path" db:"path"`
 	Destination string    `json:"destination" db:"destination"`
 	Body        string    `json:"body" db:"body"`
-	CreatedAt   time.Time `json:"created_at" db:"created_at"`
+	CreatedAt   time.Time `json:"createdAt" db:"created_at"`
 	Queries     []Query   `json:"queries" db:"queries"`
 }
 
-// TODO: query should be conditional on id existing or not
+// SaveRoute will either create a new Route or update and existing one
 func (c *Conn) SaveRoute(route Route) (routeID uint, err error) {
-	stmt, err := c.db.Preparex(`
-		INSERT INTO routes (id, project_id, type, path, destination, body)
+	queryStmt := `
+		INSERT INTO route (project_id, user_id, type, path, destination, body)
 		VALUES ($1, $2, $3, $4, $5, $6)
-		ON CONFLICT (id)
-		DO UPDATE SET 
-		type = EXCLUDED.type, path = EXCLUDED.path, destination = EXCLUDED.destination, body = EXCLUDED.body
 		RETURNING id
-	`)
+	`
+
+	if route.ID > 0 {
+		queryStmt = `
+			INSERT INTO route (id, project_id, user_id, type, path, destination, body)
+			VALUES ($1, $2, $3, $4, $5, $6, $7)
+			ON CONFLICT (id)
+			DO UPDATE SET 
+			type = EXCLUDED.type, path = EXCLUDED.path, destination = EXCLUDED.destination, body = EXCLUDED.body
+			RETURNING id
+		`
+	}
+
+	stmt, err := c.db.Preparex(queryStmt)
 	if err != nil {
 		return
 	}
