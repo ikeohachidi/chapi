@@ -1,13 +1,13 @@
 package model
 
 type Project struct {
-	Id        uint   `json:"id" db:"id"`
+	ID        uint   `json:"id" db:"id"`
 	Name      string `json:"name" db:"name"`
-	UserId    uint   `json:"userId" db:"user_id"`
+	UserID    uint   `json:"userId" db:"user_id"`
 	CreatedAt string `json:"createdAt" db:"created_at"`
 }
 
-func (conn *Conn) CreateProject(name string, userId uint) (projectId uint, err error) {
+func (conn *Conn) CreateProject(name string, userID uint) (projectID uint, err error) {
 	stmt, err := conn.db.Preparex(`INSERT INTO project ("name", user_id) values($1, $2) RETURNING id`)
 	if err != nil {
 		return
@@ -15,7 +15,7 @@ func (conn *Conn) CreateProject(name string, userId uint) (projectId uint, err e
 
 	row := stmt.QueryRowx(name)
 
-	row.Scan(&projectId)
+	row.Scan(&projectID)
 
 	stmt.Close()
 
@@ -29,7 +29,7 @@ func (conn *Conn) ListProjects() (projects []Project, err error) {
 }
 
 // TODO: can't figure out how to retrieve this properly
-func (conn *Conn) GetProjects(userId uint) (projects []Project, err error) {
+func (conn *Conn) GetProjects(userID uint) (projects []Project, err error) {
 	query := `
 		SELECT	project.*, 
 				route.*, 
@@ -39,15 +39,15 @@ func (conn *Conn) GetProjects(userId uint) (projects []Project, err error) {
 		LEFT OUTER JOIN "query" on route.id = "query".route_id
 		WHERE project.user_id = $1 
 	`
-	err = conn.db.Select(&projects, query, userId)
+	err = conn.db.Select(&projects, query, userID)
 
 	return
 }
 
-func (conn *Conn) GetUserProjects(userId uint) (projects []Project, err error) {
+func (conn *Conn) GetUserProjects(userID uint) (projects []Project, err error) {
 	query := `SELECT * FROM project WHERE user_id = $1`
 
-	err = conn.db.Select(&projects, query, userId)
+	err = conn.db.Select(&projects, query, userID)
 
 	if err != nil {
 		return
@@ -56,8 +56,8 @@ func (conn *Conn) GetUserProjects(userId uint) (projects []Project, err error) {
 	return
 }
 
-func (conn *Conn) DeleteProject(projectId uint, userId uint) (err error) {
-	_, err = conn.db.Exec("DELETE FROM project WHERE id=$1 AND user_id=$2", projectId, userId)
+func (conn *Conn) DeleteProject(projectID uint, userID uint) (err error) {
+	_, err = conn.db.Exec("DELETE FROM project WHERE id=$1 AND user_id=$2", projectID, userID)
 
 	return
 }
