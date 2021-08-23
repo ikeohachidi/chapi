@@ -50,6 +50,23 @@ func CreateProject(c echo.Context) error {
 	return c.JSON(http.StatusOK, Response{id, true})
 }
 
+func CheckProjectExistence(c echo.Context) error {
+	app := c.(App)
+	userInput := c.QueryParam("userInput")
+	errResponseText := "couldn't get result"
+
+	projectExists, err := app.Db.ProjectExists(userInput)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, Response{errResponseText, false})
+	}
+
+	if !projectExists {
+		return c.JSON(http.StatusOK, Response{false, false})
+	}
+
+	return c.JSON(http.StatusOK, Response{true, true})
+}
+
 // GetProjects retrieves a users projects
 func GetUserProjects(c echo.Context) error {
 	app := c.(App)

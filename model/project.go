@@ -22,6 +22,30 @@ func (conn *Conn) CreateProject(name string, userID uint) (projectID uint, err e
 	return
 }
 
+func (conn *Conn) ProjectExists(name string) (exists bool, err error) {
+	// SELECT id FROM project WHERE name = $1
+	stmt, err := conn.db.Preparex(`
+		SELECT
+			CASE 
+				WHEN "name" IS NOT NULL THEN 1
+				ELSE 0
+			END "exists"
+		FROM project WHERE "name" =$1 
+	`)
+
+	if err != nil {
+		return
+	}
+
+	row := stmt.QueryRowx(name)
+
+	row.Scan(&exists)
+
+	stmt.Close()
+
+	return
+}
+
 func (conn *Conn) ListProjects() (projects []Project, err error) {
 	err = conn.db.Select(&projects, "SELECT * FROM project")
 
