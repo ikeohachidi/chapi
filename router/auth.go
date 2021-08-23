@@ -27,16 +27,18 @@ func createState() string {
 }
 
 // OauthGithub will Redirect to the Github Authorization Page
-func OauthGithub(c echo.Context) {
+func OauthGithub(c echo.Context) error {
 	state := createState()
 
 	authCode := githubConfig.AuthCodeURL(state, oauth2.AccessTypeOffline)
 
 	http.Redirect(c.Response().Writer, c.Request(), authCode, http.StatusTemporaryRedirect)
+
+	return nil
 }
 
 // OauthGithubRedirect handles redirect requests from the Github Authorization page
-func OauthGithubRedirect(c echo.Context) {
+func OauthGithubRedirect(c echo.Context) error {
 	cc := c.(*App)
 
 	code := c.FormValue("code")
@@ -71,6 +73,8 @@ func OauthGithubRedirect(c echo.Context) {
 	session.Save(c.Request(), c.Response().Writer)
 
 	c.Redirect(http.StatusMovedPermanently, "/")
+
+	return nil
 }
 
 // Logout deletes a users session
