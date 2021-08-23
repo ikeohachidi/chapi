@@ -8,7 +8,12 @@ type Project struct {
 }
 
 func (conn *Conn) CreateProject(name string, userID uint) (projectID uint, err error) {
-	stmt, err := conn.db.Preparex(`INSERT INTO project ("name", user_id) values($1, $2) RETURNING id`)
+	stmt, err := conn.db.Preparex(`
+		INSERT INTO project ("name", user_id) 
+		VALUES($1, $2) 
+		ON CONFLICT("name") DO NOTHING 
+		RETURNING id
+	`)
 	if err != nil {
 		return
 	}
