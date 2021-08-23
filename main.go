@@ -48,6 +48,7 @@ func main() {
 
 	e.GET("/project", router.GetUserProjects)
 	e.GET("/project/all", router.ListProjects)
+	e.GET("/project/exists", router.CheckProjectExistence)
 	e.POST("/project", router.CreateProject)
 	e.DELETE("/project/:id", router.DeleteProject)
 
