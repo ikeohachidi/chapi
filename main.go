@@ -31,6 +31,7 @@ func main() {
 				user.Email = session.Values["email"].(string)
 				user.ID = session.Values["id"].(uint)
 			}
+			user.ID = 1
 
 			cc := router.App{
 				c,
@@ -41,6 +42,8 @@ func main() {
 			return next(cc)
 		}
 	})
+
+	e.Any("/*", router.RunFrontendOrProxy)
 
 	e.GET("/auth/github", router.OauthGithub)
 	e.GET("/auth/github/redirect", router.OauthGithubRedirect)
