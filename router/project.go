@@ -3,25 +3,10 @@ package router
 import (
 	"net/http"
 	"strconv"
-	"text/template"
 
 	"github.com/labstack/echo/v4"
 	log "github.com/sirupsen/logrus"
 )
-
-func Index(c echo.Context) error {
-	tmpl, err := template.New("index").ParseFiles("../frontend/index.html")
-	if err != nil {
-		log.Warnf("couldn't parse index.html file: %v", err)
-	}
-
-	err = tmpl.Execute(c.Response().Writer, nil)
-	if err != nil {
-		log.Warnf("couldn't exectute template: %v", err)
-	}
-
-	return nil
-}
 
 func CreateProject(c echo.Context) error {
 	app := c.(App)
