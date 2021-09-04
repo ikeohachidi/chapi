@@ -1,21 +1,48 @@
 package model
 
 import (
+	"bytes"
 	"database/sql"
-	"log"
+	"encoding/json"
 	"time"
 )
 
 type Route struct {
 	ID          uint           `json:"id" db:"id"`
 	ProjectID   uint           `json:"projectId" db:"project_id"`
-	UserID      uint           `json:"userId" db:"user_id, -"`
+	UserID      uint           `json:"userId" db:"user_id"`
 	Type        string         `json:"type" db:"type"`
 	Path        string         `json:"path" db:"path"`
 	Destination string         `json:"destination" db:"destination"`
 	Body        sql.NullString `json:"body" db:"body"`
 	CreatedAt   time.Time      `json:"createdAt" db:"created_at"`
-	Queries     []Query        `json:"queries" db:"queries"`
+	Queries     Queries        `json:"queries" db:"queries"`
+}
+
+type Queries []Query
+
+func (qu *Queries) Scan(src interface{}) (err error) {
+	buf := bytes.NewBuffer(src.([]uint8))
+
+	trimmed := bytes.TrimPrefix(buf.Bytes(), []byte("{\""))
+	trimmed = bytes.TrimSuffix(trimmed, []byte("\"}"))
+
+	queries := bytes.Split(trimmed, []byte("\",\""))
+
+	for _, query := range queries {
+		var q Query
+
+		cleanedJSON := bytes.ReplaceAll(query, []byte("\\"), []byte(""))
+
+		err = json.Unmarshal(cleanedJSON, &q)
+		if err != nil {
+			return
+		}
+
+		*qu = append(*qu, q)
+	}
+
+	return nil
 }
 
 // SaveRoute will either create a new Route or update and existing one
@@ -75,15 +102,24 @@ func (c *Conn) DeleteRoute(routeID uint, userID uint) (err error) {
 
 func (c *Conn) GetRouteFromNameAndPath(name string, path string) (route Route, err error) {
 	queryStmt := `
-		SELECT * FROM route
-		WHERE project_id = (
-				SELECT id FROM project WHERE "name" = $1 
+		SELECT
+			route.*,
+			array_agg(json_build_object('id', "query".id, 'name', "query"."name", 'value', "query"."value")) as queries
+		FROM route
+		INNER JOIN "query" ON route.id = "query".route_id
+		WHERE route.project_id = (
+				SELECT id FROM project WHERE "name" = $1
 			)
-		AND path = $2 
+		AND path = $2
+		GROUP BY route.id
 	`
-	log.Printf("over here %v %v", name, path)
 
-	err = c.db.Get(&route, queryStmt, name, path)
+	row := c.db.QueryRowx(queryStmt, name, path)
+
+	err = row.StructScan(&route)
+	if err != nil {
+		return
+	}
 
 	return
 }

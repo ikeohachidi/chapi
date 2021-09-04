@@ -1,5 +1,7 @@
 package model
 
+import "fmt"
+
 type Project struct {
 	ID        uint   `json:"id" db:"id"`
 	Name      string `json:"name" db:"name"`
@@ -53,6 +55,12 @@ func (conn *Conn) ProjectExists(name string) (exists bool, err error) {
 
 func (conn *Conn) ListProjects() (projects []Project, err error) {
 	err = conn.db.Select(&projects, "SELECT * FROM project")
+
+	return
+}
+
+func (conn *Conn) GetProjectByName(name string) (project Project, err error) {
+	err = conn.db.Select(&project, fmt.Sprintf("SELECT * FROM project WHERE name = %v", name))
 
 	return
 }

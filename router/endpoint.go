@@ -1,10 +1,13 @@
 package router
 
 import (
+	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strings"
 	"text/template"
 
+	"github.com/ikeohachidi/chapi-be/model"
 	"github.com/labstack/echo/v4"
 	log "github.com/sirupsen/logrus"
 )
@@ -35,10 +38,56 @@ func StartProxy(c echo.Context) error {
 	route, err := app.Db.GetRouteFromNameAndPath(splitHost[0], c.Request().URL.Path)
 	if err != nil {
 		log.Errorf("error getting project: %v", err)
-		return c.JSON(http.StatusBadRequest, nil)
+		return c.JSON(http.StatusInternalServerError, nil)
 	}
 
+	destinationURL := buildURL(c.Request(), route)
+
+	req, err := http.NewRequest(route.Type, destinationURL, nil)
+	if err != nil {
+		log.Errorf("error creating new request: %v", err)
+		return c.JSON(http.StatusInternalServerError, nil)
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Errorf("error making http request with default client: %v", err)
+		return c.JSON(http.StatusInternalServerError, nil)
+	}
+
+	responseBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Errorf("error reading response body: %v", err)
+		return c.JSON(http.StatusInternalServerError, nil)
+	}
+
+	c.Response().Write(responseBody)
+
 	return nil
+}
+
+func buildURL(request *http.Request, route model.Route) string {
+	urlQuery := request.URL.RawQuery
+
+	destinationURL := fmt.Sprintf("%v%v?", route.Destination, route.Path)
+
+	if urlQuery != "" || len(route.Queries) != 0 {
+		destinationURL += urlQuery
+
+		for index, query := range route.Queries {
+			if index != 0 {
+				destinationURL += "&"
+			}
+
+			if index == 0 && urlQuery != "" {
+				destinationURL += "&"
+			}
+
+			destinationURL += fmt.Sprintf("%v=%v", query.Name, query.Value)
+		}
+	}
+
+	return destinationURL
 }
 
 func RunFrontendOrProxy(c echo.Context) error {
