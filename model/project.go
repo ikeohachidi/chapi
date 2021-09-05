@@ -30,7 +30,6 @@ func (conn *Conn) CreateProject(name string, userID uint) (projectID uint, err e
 }
 
 func (conn *Conn) ProjectExists(name string) (exists bool, err error) {
-	// SELECT id FROM project WHERE name = $1
 	stmt, err := conn.db.Preparex(`
 		SELECT
 			CASE 

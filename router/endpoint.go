@@ -27,7 +27,6 @@ func HandleFrontend(c echo.Context) error {
 }
 
 func StartProxy(c echo.Context) error {
-	// blog.chapi.com/openmap
 	app := c.(App)
 
 	splitHost := strings.Split(c.Request().Host, ".")
