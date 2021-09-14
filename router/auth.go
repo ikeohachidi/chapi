@@ -13,11 +13,16 @@ import (
 	"golang.org/x/oauth2/github"
 )
 
+var (
+	FRONTEND_URL = os.Getenv("LOCAL_FRONTEND")
+	SERVER_URL   = os.Getenv("LOCAL_SERVER")
+)
+
 var githubConfig = oauth2.Config{
 	ClientID:     os.Getenv("CHAPI_GITHUB_ID"),
 	ClientSecret: os.Getenv("CHAPI_GITHUB_SECRET"),
 	Scopes:       []string{"user:email"},
-	RedirectURL:  os.Getenv("LOCAL_SERVER") + "/auth/github/redirect",
+	RedirectURL:  SERVER_URL + "/auth/github/redirect",
 	Endpoint:     github.Endpoint,
 }
 
@@ -39,31 +44,31 @@ func OauthGithub(c echo.Context) error {
 
 // OauthGithubRedirect handles redirect requests from the Github Authorization page
 func OauthGithubRedirect(c echo.Context) error {
-	cc := c.(*App)
+	cc := c.(App)
 
 	code := c.FormValue("code")
 
 	// Exchange the user information for an access_token
 	token, err := githubConfig.Exchange(context.Background(), code)
-	errRedirect(c, "/", err)
+	errRedirect(c, FRONTEND_URL, err)
 
 	// Get the user information from the github api
 	req, err := http.NewRequest(http.MethodGet, "https://api.github.com/user", nil)
-	errRedirect(c, "/", err)
+	errRedirect(c, FRONTEND_URL, err)
 
 	req.Header.Set("Authorization", "token "+token.AccessToken)
 
 	res, err := http.DefaultClient.Do(req)
-	errRedirect(c, "/", err)
+	errRedirect(c, FRONTEND_URL, err)
 	defer res.Body.Close()
 
 	var user model.User
 
 	err = json.NewDecoder(res.Body).Decode(&user)
-	errRedirect(c, "/", err)
+	errRedirect(c, FRONTEND_URL, err)
 
 	userID, err := cc.Db.CreateUser(user)
-	errRedirect(c, "/", err)
+	errRedirect(c, FRONTEND_URL, err)
 
 	// set cookie
 	session, _ := store.Get(c.Request(), "chapi_session")
@@ -72,7 +77,7 @@ func OauthGithubRedirect(c echo.Context) error {
 	session.Values["access_token"] = token.AccessToken
 	session.Save(c.Request(), c.Response().Writer)
 
-	c.Redirect(http.StatusMovedPermanently, "/")
+	c.Redirect(http.StatusMovedPermanently, FRONTEND_URL)
 
 	return nil
 }
