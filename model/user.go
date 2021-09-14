@@ -10,15 +10,17 @@ type User struct {
 
 func (c *Conn) CreateUser(user User) (userID uint, err error) {
 	stmt, err := c.db.Preparex(`
-		INSERT INTO user (id, email)
-		VALUES ($1, $2)
+		INSERT INTO "user" (email)
+		VALUES ($1)
+		ON CONFLICT (email)
+		DO NOTHING
 	`)
 
 	if err != nil {
 		return
 	}
 
-	row, err := stmt.Queryx(user)
+	row, err := stmt.Queryx(user.Email)
 
 	if err != nil {
 		return
