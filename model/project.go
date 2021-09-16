@@ -1,6 +1,8 @@
 package model
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type Project struct {
 	ID        uint   `json:"id" db:"id"`
@@ -11,18 +13,27 @@ type Project struct {
 
 func (conn *Conn) CreateProject(name string, userID uint) (projectID uint, err error) {
 	stmt, err := conn.db.Preparex(`
-		INSERT INTO project ("name", user_id) 
-		VALUES($1, $2) 
-		ON CONFLICT("name") DO NOTHING 
-		RETURNING id
+		WITH e AS (
+			INSERT INTO project ("name", user_id) 
+			VALUES($1, $2) 
+			ON CONFLICT("name") DO NOTHING 
+			RETURNING id
+		)
+
+		SELECT * FROM e
+		UNION
+		SELECT id FROM project WHERE "name"=$1
 	`)
 	if err != nil {
 		return
 	}
 
-	row := stmt.QueryRowx(name)
+	row := stmt.QueryRowx(name, userID)
 
-	row.Scan(&projectID)
+	err = row.Scan(&projectID)
+	if err != nil {
+		return
+	}
 
 	stmt.Close()
 
