@@ -19,7 +19,7 @@ type App struct {
 }
 
 type Response struct {
-	Data       interface{} `json:"message"`
+	Data       interface{} `json:"data"`
 	Successful bool        `json:"successful"`
 }
 
