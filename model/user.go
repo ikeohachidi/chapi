@@ -1,6 +1,8 @@
 package model
 
-import "time"
+import (
+	"time"
+)
 
 type User struct {
 	ID        uint      `json:"id" db:"id"`
@@ -10,25 +12,28 @@ type User struct {
 
 func (c *Conn) CreateUser(user User) (userID uint, err error) {
 	stmt, err := c.db.Preparex(`
-		INSERT INTO "user" (email)
-		VALUES ($1)
-		ON CONFLICT (email)
-		DO NOTHING
+		WITH e AS(
+			INSERT INTO "user" (email) 
+			VALUES ($1)
+			ON CONFLICT (email) DO NOTHING
+			RETURNING id
+		)
+
+		SELECT * FROM e
+		UNION 
+		sELECT id FROM "user" WHERE email=$1;
 	`)
 
 	if err != nil {
 		return
 	}
 
-	row, err := stmt.Queryx(user.Email)
+	row := stmt.QueryRowx(user.Email)
 
+	err = row.Scan(&userID)
 	if err != nil {
 		return
 	}
-
-	row.Scan(&userID)
-
-	row.Close()
 
 	return
 }
