@@ -8,7 +8,12 @@ import (
 	"github.com/ikeohachidi/chapi-be/model"
 	"github.com/ikeohachidi/chapi-be/router"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	log "github.com/sirupsen/logrus"
+)
+
+var (
+	LOCAL_FRONTEND = os.Getenv("LOCAL_FRONTEND")
 )
 
 func main() {
@@ -16,6 +21,11 @@ func main() {
 	db := model.Connect()
 
 	store := goSession.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
+
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins:     []string{LOCAL_FRONTEND},
+		AllowCredentials: true,
+	}))
 
 	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
@@ -64,5 +74,5 @@ func main() {
 	e.POST("/query", router.SaveQuery)
 	e.DELETE("/query/:id", router.DeleteRouteQuery)
 
-	e.Logger.Fatal(e.Start(":1333"))
+	e.Logger.Fatal(e.Start(":5000"))
 }
