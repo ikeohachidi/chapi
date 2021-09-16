@@ -104,3 +104,19 @@ func Logout(c echo.Context) error {
 	http.SetCookie(c.Response().Writer, &deleteCookie)
 	return c.JSON(http.StatusOK, Response{"Logout successful", true})
 }
+
+func GetAuthenticatedUser(c echo.Context) (err error) {
+	session, _ := store.Get(c.Request(), "chapi_session")
+
+	if _, ok := session.Values["id"]; !ok {
+		return c.JSON(http.StatusBadRequest, nil)
+	}
+
+	return c.JSON(http.StatusOK, Response{
+		Data: model.User{
+			ID:    session.Values["id"].(uint),
+			Email: session.Values["email"].(string),
+		},
+		Successful: true,
+	})
+}

@@ -48,6 +48,7 @@ func main() {
 	e.GET("/auth/github", router.OauthGithub)
 	e.GET("/auth/github/redirect", router.OauthGithubRedirect)
 	e.GET("/auth/logout", router.Logout)
+	e.GET("/auth/user", router.GetAuthenticatedUser)
 
 	e.GET("/project", router.GetUserProjects)
 	e.GET("/project/all", router.ListProjects)
