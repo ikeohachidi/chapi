@@ -67,7 +67,10 @@ func GetUserProjects(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, Response{"Couldn't get user projects", false})
 	}
 
-	return c.JSON(http.StatusOK, projects)
+	return c.JSON(http.StatusOK, Response{
+		Data:       projects,
+		Successful: true,
+	})
 }
 
 func ListProjects(c echo.Context) error {
