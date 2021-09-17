@@ -82,10 +82,10 @@ func (c *Conn) SaveRoute(route Route) (routeID uint, err error) {
 	return
 }
 
-func (c *Conn) GetRoutesByProjectId(projectID uint) (routes []Route, err error) {
-	query := `SELECT * FROM route WHERE project_id=$1`
+func (c *Conn) GetRoutesByProjectId(projectID uint, userID uint) (routes []Route, err error) {
+	query := `SELECT * FROM route WHERE project_id=$1 AND user_id=$2`
 
-	err = c.db.Select(&routes, query, projectID)
+	err = c.db.Select(&routes, query, projectID, userID)
 
 	if err != nil {
 		return

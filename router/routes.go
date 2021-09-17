@@ -36,7 +36,12 @@ func GetProjectRoutes(c echo.Context) error {
 	projectID, _ := strconv.Atoi(c.Param("projectID"))
 	errResponseText := "couldn't retrieve project route"
 
-	routes, err := app.Db.GetRoutesByProjectId(uint(projectID))
+	if app.User.ID == 0 {
+		log.Errorf("can't get project routes with invalid user id")
+		return c.JSON(http.StatusBadRequest, nil)
+	}
+
+	routes, err := app.Db.GetRoutesByProjectId(uint(projectID), app.User.ID)
 	if err != nil {
 		log.Errorf("couldn't retrieve project routes %v", err)
 		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
