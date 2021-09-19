@@ -83,7 +83,15 @@ func (c *Conn) SaveRoute(route Route) (routeID uint, err error) {
 }
 
 func (c *Conn) GetRoutesByProjectId(projectID uint, userID uint) (routes []Route, err error) {
-	query := `SELECT * FROM route WHERE project_id=$1 AND user_id=$2`
+	query := `
+		SELECT 
+			route.*,
+			array_agg(json_build_object('id', "query".id, 'name', "query"."name", 'value', "query"."value")) as queries
+		FROM route
+		INNER JOIN "query" ON route.id = "query".route_id
+		WHERE route.project_id = $1 AND route.user_id = $2 
+		GROUP BY route.id
+	`
 
 	err = c.db.Select(&routes, query, projectID, userID)
 
