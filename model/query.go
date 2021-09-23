@@ -11,35 +11,35 @@ type Query struct {
 // SaveQuery will either create a new query or update(really upsert) an existing one
 func (c *Conn) SaveQuery(query *Query) (err error) {
 	queryStmt := `
-		INSERT INTO "query"(route_id, user_id, name, value) RETURNING id
+		INSERT INTO "query" (route_id, user_id, "name", "value")
+		VALUES ($1, $2, $3, $4)
+		RETURNING id
 	`
-
-	if query.ID > 0 {
-		queryStmt = `
-			INSERT INTO "query" (id, route_id, user_id, name, value)
-			VALUES ($1, $2, $3)
-			ON CONFLICT (id)
-			DO UPDATE SET 
-			name = EXCLUDED.name, value = EXCLUDED.value,
-			RETURNING id
-		`
-	}
-
 	stmt, err := c.db.Preparex(queryStmt)
 
 	if err != nil {
 		return
 	}
 
-	row, err := stmt.Queryx(query)
+	row := stmt.QueryRowx(query.RouteID, query.UserID, query.Name, query.Value)
 
 	if err != nil {
 		return
 	}
 
-	row.Scan(query.ID)
+	err = row.Scan(&query.ID)
 
-	row.Close()
+	return
+}
+
+func (c *Conn) UpdateQuery(query Query) (err error) {
+	queryStmt := `
+		UPDATE "query" 
+		SET "name" = $1, "value" = $2
+		WHERE id = $3 AND route_id = $4 AND user_id = $5
+	`
+
+	_, err = c.db.Exec(queryStmt, query.Name, query.Value, query.ID, query.RouteID, query.UserID)
 
 	return
 }

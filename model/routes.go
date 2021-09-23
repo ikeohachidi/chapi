@@ -86,7 +86,7 @@ func (c *Conn) GetRoutesByProjectId(projectID uint, userID uint) (routes []Route
 	query := `
 		SELECT 
 			route.*,
-			array_agg(json_build_object('id', "query".id, 'name', "query"."name", 'value', "query"."value")) as queries
+			array_agg(json_build_object('id', "query".id, 'name', "query"."name", 'value', "query"."value", 'routeId', "query".route_id, 'userId', "query".user_id)) as queries
 		FROM route
 		INNER JOIN "query" ON route.id = "query".route_id
 		WHERE route.project_id = $1 AND route.user_id = $2 
