@@ -24,13 +24,22 @@ func SaveQuery(c echo.Context) error {
 
 	query.UserID = app.User.ID
 
-	err = app.Db.SaveQuery(&query)
+	HTTPMethod := c.Request().Method
+
+	if HTTPMethod == "POST" {
+		err = app.Db.SaveQuery(&query)
+	}
+
+	if HTTPMethod == "PUT" {
+		err = app.Db.UpdateQuery(query)
+	}
+
 	if err != nil {
 		log.Errorf("error saving query to db: %v", err)
 		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
 	}
 
-	return c.JSON(http.StatusOK, Response{query, true})
+	return c.JSON(http.StatusOK, Response{query.ID, true})
 }
 
 func GetRouteQueries(c echo.Context) error {
