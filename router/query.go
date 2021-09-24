@@ -61,23 +61,29 @@ func GetRouteQueries(c echo.Context) error {
 	return c.JSON(http.StatusOK, queries)
 }
 
-func DeleteRouteQuery(c echo.Context) error {
+func DeleteQuery(c echo.Context) error {
 	app := c.(App)
 	errResponseText := "couldn't delete route query"
 
-	queryID, err := strconv.Atoi(c.Param("id"))
+	queryID, err := strconv.Atoi(c.QueryParam("id"))
 	if err != nil {
 		log.Errorf("error converting query Id string to int: %v", err)
 		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
 	}
 
-	routeID, err := strconv.Atoi(c.QueryParam("routeId"))
+	routeID, err := strconv.Atoi(c.QueryParam("route_id"))
 	if err != nil {
 		log.Errorf("error converting route Id string to int: %v", err)
 		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
 	}
 
-	err = app.Db.DeleteQuery(uint(queryID), uint(routeID), app.User.ID)
+	var query = model.Query{
+		UserID:  app.User.ID,
+		ID:      uint(queryID),
+		RouteID: uint(routeID),
+	}
+
+	err = app.Db.DeleteQuery(query)
 	if err != nil {
 		log.Errorf("error running delete route query query: %v", err)
 		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
