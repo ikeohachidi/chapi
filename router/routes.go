@@ -13,7 +13,10 @@ import (
 func SaveRoute(c echo.Context) error {
 	app := c.(App)
 	errResponseText := "couldn't save route"
-	var route model.Route
+
+	var route = model.Route{
+		UserID: app.User.ID,
+	}
 
 	err := json.NewDecoder(c.Request().Body).Decode(&route)
 
@@ -22,13 +25,22 @@ func SaveRoute(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
 	}
 
-	routeID, err := app.Db.SaveRoute(route)
+	HTTPMethod := c.Request().Method
+
+	if HTTPMethod == http.MethodPost {
+		err = app.Db.SaveRoute(&route)
+	}
+
+	if HTTPMethod == http.MethodPut {
+		err = app.Db.UpdateRoute(route)
+	}
+
 	if err != nil {
 		log.Errorf("couldn't save route %v", err)
 		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
 	}
 
-	return c.JSON(http.StatusOK, Response{routeID, true})
+	return c.JSON(http.StatusOK, Response{route.ID, true})
 }
 
 func GetProjectRoutes(c echo.Context) error {

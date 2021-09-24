@@ -68,6 +68,7 @@ func main() {
 
 	e.GET("/route/:projectID", router.GetProjectRoutes)
 	e.POST("/route", router.SaveRoute)
+	e.PUT("/route", router.SaveRoute)
 	e.DELETE("/route", router.DeleteRoute)
 
 	e.GET("/query/:routeID", router.GetRouteQueries)

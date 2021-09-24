@@ -26,11 +26,11 @@ func SaveQuery(c echo.Context) error {
 
 	HTTPMethod := c.Request().Method
 
-	if HTTPMethod == "POST" {
+	if HTTPMethod == http.MethodPost {
 		err = app.Db.SaveQuery(&query)
 	}
 
-	if HTTPMethod == "PUT" {
+	if HTTPMethod == http.MethodPut {
 		err = app.Db.UpdateQuery(query)
 	}
 
