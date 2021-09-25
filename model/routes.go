@@ -2,21 +2,20 @@ package model
 
 import (
 	"bytes"
-	"database/sql"
 	"encoding/json"
 	"time"
 )
 
 type Route struct {
-	ID          uint           `json:"id" db:"id"`
-	ProjectID   uint           `json:"projectId" db:"project_id"`
-	UserID      uint           `json:"userId" db:"user_id"`
-	Type        string         `json:"type" db:"type"`
-	Path        string         `json:"path" db:"path"`
-	Destination string         `json:"destination" db:"destination"`
-	Body        sql.NullString `json:"body" db:"body"`
-	CreatedAt   time.Time      `json:"createdAt" db:"created_at"`
-	Queries     Queries        `json:"queries" db:"queries"`
+	ID          uint      `json:"id" db:"id"`
+	ProjectID   uint      `json:"projectId" db:"project_id"`
+	UserID      uint      `json:"userId" db:"user_id"`
+	Type        string    `json:"type" db:"type"`
+	Path        string    `json:"path" db:"path"`
+	Destination string    `json:"destination" db:"destination"`
+	Body        string    `json:"body" db:"body"`
+	CreatedAt   time.Time `json:"createdAt" db:"created_at"`
+	Queries     Queries   `json:"queries" db:"queries"`
 }
 
 type Queries []Query
