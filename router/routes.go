@@ -32,6 +32,7 @@ func SaveRoute(c echo.Context) error {
 	}
 
 	if HTTPMethod == http.MethodPut {
+		log.Println("put")
 		err = app.Db.UpdateRoute(route)
 	}
 

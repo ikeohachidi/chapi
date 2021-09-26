@@ -68,11 +68,11 @@ func (c *Conn) SaveRoute(route *Route) (err error) {
 func (c *Conn) UpdateRoute(route Route) (err error) {
 	queryStmt := `
 		UPDATE route
-		SET type = $1, path = $2, destination = $3, body = $4
-		WHERE id = $5 AND user_id = $6
+		SET type = $1, path = $2, destination = $3, body = $4, description = $5
+		WHERE id = $6 AND user_id = $7
 	`
 
-	_, err = c.db.Exec(queryStmt, route.Type, route.Path, route.Destination, route.Body, route.ID, route.UserID)
+	_, err = c.db.Exec(queryStmt, route.Type, route.Path, route.Destination, route.Body, route.Description, route.ID, route.UserID)
 	if err != nil {
 		return
 	}
