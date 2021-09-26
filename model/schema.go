@@ -26,8 +26,9 @@ CREATE TABLE route (
 	user_id 		INTEGER REFERENCES "user"(id) ON DELETE CASCADE,
 	type 			request_type DEFAULT 'GET',
 	path 			TEXT NOT NULL,
+	description 	TEXT NOT NULL DEFAULT '',
 	destination 	TEXT NOT NULL,
-	body			TEXT,
+	body			TEXT DEFAULT '',
 	created_at		TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
@@ -45,7 +46,7 @@ INSERT into "user"(email) values('ikeohachidi@gmail.com');
 INSERT INTO project("name", user_id) VALUES('foo', 1);
 INSERT INTO project("name", user_id) VALUES('bar', 1);
 INSERT into route(project_id, user_id, "type", path, destination) VALUES(1, 1, 'GET', '/maps', 'http://localhost.com');
-INSERT INTO "query"(route_id, "name", "value") VALUES(1, 'key1', 'private1');
-INSERT INTO "query"(route_id, "name", "value") VALUES(1, 'key2', 'private2');
-INSERT INTO "query"(route_id, "name", "value") VALUES(1, 'key3', 'private3');
+INSERT INTO "query"(route_id, user_id, "name", "value") VALUES(1, 1, 'key1', 'private1');
+INSERT INTO "query"(route_id, user_id, "name", "value") VALUES(1, 1, 'key2', 'private2');
+INSERT INTO "query"(route_id, user_id, "name", "value") VALUES(1, 1, 'key3', 'private3');
 `

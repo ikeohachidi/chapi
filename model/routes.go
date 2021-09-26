@@ -13,6 +13,7 @@ type Route struct {
 	Type        string    `json:"type" db:"type"`
 	Path        string    `json:"path" db:"path"`
 	Destination string    `json:"destination" db:"destination"`
+	Description string    `json:"description" db:"description"`
 	Body        string    `json:"body" db:"body"`
 	CreatedAt   time.Time `json:"createdAt" db:"created_at"`
 	Queries     Queries   `json:"queries" db:"queries"`
@@ -47,8 +48,8 @@ func (qu *Queries) Scan(src interface{}) (err error) {
 // SaveRoute will either create a new Route or update and existing one
 func (c *Conn) SaveRoute(route *Route) (err error) {
 	queryStmt := `
-		INSERT INTO route (project_id, user_id, type, path, destination, body)
-		VALUES ($1, $2, $3, $4, $5, $6)
+		INSERT INTO route (project_id, user_id, type, path, destination, body, description)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)
 		RETURNING id
 	`
 
@@ -57,9 +58,9 @@ func (c *Conn) SaveRoute(route *Route) (err error) {
 		return
 	}
 
-	row := stmt.QueryRow(route)
+	row := stmt.QueryRow(route.ProjectID, route.UserID, route.Type, route.Path, route.Destination, route.Body, route.Description)
 
-	row.Scan(&route.ID)
+	err = row.Scan(&route.ID)
 
 	return
 }
