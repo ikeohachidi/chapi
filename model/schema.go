@@ -2,7 +2,7 @@ package model
 
 var schema = `
 DROP TYPE IF EXISTS request_type CASCADE; 
-CREATE TYPE request_type AS ENUM ('GET', 'POST', 'PUT');
+CREATE TYPE request_type AS ENUM ('GET', 'POST', 'PUT', 'DELETE');
 
 DROP TABLE IF EXISTS "user" CASCADE;
 CREATE TABLE "user" (
@@ -24,7 +24,7 @@ CREATE TABLE route (
 	id  			SERIAL PRIMARY KEY,
 	project_id		INTEGER NOT NULL REFERENCES project(id) ON DELETE CASCADE,
 	user_id 		INTEGER REFERENCES "user"(id) ON DELETE CASCADE,
-	type 			request_type DEFAULT 'GET',
+	method 			request_type DEFAULT 'GET',
 	path 			TEXT NOT NULL,
 	description 	TEXT NOT NULL DEFAULT '',
 	destination 	TEXT NOT NULL,
@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS "query" (
 INSERT into "user"(email) values('ikeohachidi@gmail.com');
 INSERT INTO project("name", user_id) VALUES('foo', 1);
 INSERT INTO project("name", user_id) VALUES('bar', 1);
-INSERT into route(project_id, user_id, "type", path, destination) VALUES(1, 1, 'GET', '/maps', 'http://localhost.com');
+INSERT into route(project_id, user_id, method, path, destination) VALUES(1, 1, 'GET', '/maps', 'http://localhost.com');
 INSERT INTO "query"(route_id, user_id, "name", "value") VALUES(1, 1, 'key1', 'private1');
 INSERT INTO "query"(route_id, user_id, "name", "value") VALUES(1, 1, 'key2', 'private2');
 INSERT INTO "query"(route_id, user_id, "name", "value") VALUES(1, 1, 'key3', 'private3');

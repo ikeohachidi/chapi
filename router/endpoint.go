@@ -42,7 +42,7 @@ func StartProxy(c echo.Context) error {
 
 	destinationURL := buildURL(c.Request(), route)
 
-	req, err := http.NewRequest(route.Type, destinationURL, nil)
+	req, err := http.NewRequest(route.Method, destinationURL, nil)
 	if err != nil {
 		log.Errorf("error creating new request: %v", err)
 		return c.JSON(http.StatusInternalServerError, nil)
