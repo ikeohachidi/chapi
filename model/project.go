@@ -47,7 +47,8 @@ func (conn *Conn) ProjectExists(name string) (exists bool, err error) {
 				WHEN "name" IS NOT NULL THEN 1
 				ELSE 0
 			END "exists"
-		FROM project WHERE "name" =$1 
+		FROM project
+		WHERE "name" ILIKE '%' || $1 || '%'
 	`)
 
 	if err != nil {
@@ -56,7 +57,7 @@ func (conn *Conn) ProjectExists(name string) (exists bool, err error) {
 
 	row := stmt.QueryRowx(name)
 
-	row.Scan(&exists)
+	err = row.Scan(&exists)
 
 	stmt.Close()
 

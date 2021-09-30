@@ -35,18 +35,19 @@ func CreateProject(c echo.Context) error {
 	return c.JSON(http.StatusOK, Response{id, true})
 }
 
-func CheckProjectExistence(c echo.Context) error {
+func DoesProjectExist(c echo.Context) error {
 	app := c.(App)
-	userInput := c.QueryParam("userInput")
+	projectName := c.QueryParam("name")
 	errResponseText := "couldn't get result"
 
-	projectExists, err := app.Db.ProjectExists(userInput)
+	projectExists, err := app.Db.ProjectExists(projectName)
 	if err != nil {
+		log.Errorf("error occured checking if project exists: %v", err)
 		return c.JSON(http.StatusInternalServerError, Response{errResponseText, false})
 	}
 
 	if !projectExists {
-		return c.JSON(http.StatusOK, Response{false, false})
+		return c.JSON(http.StatusOK, Response{false, true})
 	}
 
 	return c.JSON(http.StatusOK, Response{true, true})
