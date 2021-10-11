@@ -65,7 +65,7 @@ func (c *Conn) GetHeader(userID, routeID uint) (header Header, err error) {
 		WHERE user_id = $1 AND route_id = $2
 	`
 
-	rows, err := c.db.Query(stmt)
+	rows, err := c.db.Query(stmt, userID, routeID)
 	if err != nil {
 		return
 	}
