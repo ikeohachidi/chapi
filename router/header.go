@@ -71,20 +71,12 @@ func DeleteHeader(c echo.Context) error {
 	app := c.(App)
 	errResponseText := "couldn't delete header"
 
-	var header model.Header
-
 	routeID, err := strconv.Atoi(c.Request().URL.Query().Get("route"))
 	if err != nil {
 		log.Errorf("error converting route id query to int: %v", err)
 		return sendErrorResponse(c, http.StatusInternalServerError, errResponseText)
 	}
 	headerName := c.Request().URL.Query().Get("name")
-
-	err = json.NewDecoder(c.Request().Body).Decode(&header)
-	if err != nil {
-		log.Errorf("error decoding header request body: %v", err)
-		return sendErrorResponse(c, http.StatusInternalServerError, errResponseText)
-	}
 
 	if app.User.ID == 0 || routeID == 0 {
 		log.Errorf("error getting user id or route id:\n userID: %v \n routeID: %v")
