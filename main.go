@@ -78,9 +78,9 @@ func main() {
 	e.DELETE("/query", router.DeleteQuery)
 
 	e.GET("/header", router.GetHeaders)
-	e.POST("/header", router.SaveQuery)
-	e.PUT("/header", router.SaveQuery)
-	e.DELETE("/header", router.DeleteQuery)
+	e.POST("/header", router.SaveHeader)
+	e.PUT("/header", router.SaveHeader)
+	e.DELETE("/header", router.DeleteHeader)
 
 	e.Logger.Fatal(e.Start(":5000"))
 }
