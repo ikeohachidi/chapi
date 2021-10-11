@@ -1,38 +1,23 @@
 package model
 
-type Header map[string]interface{}
-
-func (h Header) Scan(src interface{}) (err error) {
-	return nil
+type Header struct {
+	ID      uint   `json:"id,omitempty" db:"id"`
+	UserID  uint   `json:"user_id,omitempty" db:"user_id"`
+	RouteID uint   `json:"route_id,omitempty" db:"route_id"`
+	Name    string `json:"name" db:"name"`
+	Value   string `json:"value" value:"value"`
 }
 
 func (c *Conn) SaveHeader(header Header, userID, routeID uint) (err error) {
-	tx, err := c.db.Begin()
-	if err != nil {
-		return
-	}
+	stmt := `
+		INSERT INTO	header(user_id, route_id, name, value)
+		VALUES ($1, $2, $3, $4)
+		ON CONFLICT (name)
+		DO UPDATE
+		SET value = EXCLUDED.value
+	`
 
-	for k := range header {
-		_, err = tx.Exec(`
-			INSERT INTO	header(user_id, route_id, name, value)
-			VALUES ($1, $2, $3, $4)
-			ON CONFLICT (name)
-			DO UPDATE
-			SET value = EXCLUDED.value
-		`, userID, routeID, k, header[k])
-
-		if err != nil {
-			err = tx.Rollback()
-
-			if err != nil {
-				return
-			}
-
-			return
-		}
-	}
-
-	err = tx.Commit()
+	_, err = c.db.Exec(stmt, header.UserID, header.RouteID, header.Name, header.Value)
 	if err != nil {
 		return
 	}
@@ -58,7 +43,7 @@ func (c *Conn) DeleteHeader(headerName string, userID, routeID uint) (err error)
 	return nil
 }
 
-func (c *Conn) GetHeader(userID, routeID uint) (header Header, err error) {
+func (c *Conn) GetHeader(userID, routeID uint) (headers []Header, err error) {
 	stmt := `
 		SELECT name, value
 		FROM header
@@ -73,10 +58,14 @@ func (c *Conn) GetHeader(userID, routeID uint) (header Header, err error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		err := rows.Scan(&header)
+		var header Header
+
+		err := rows.Scan(&header.Name, &header.Value)
 		if err != nil {
 			return nil, err
 		}
+
+		headers = append(headers, header)
 	}
 
 	if err = rows.Err(); err != nil {
