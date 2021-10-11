@@ -27,3 +27,17 @@ func errRedirect(c echo.Context, url string, err error) {
 	log.Error(err)
 	c.Redirect(http.StatusInternalServerError, url)
 }
+
+func sendErrorResponse(c echo.Context, statusCode int, responseText string) error {
+	return c.JSON(statusCode, Response{
+		Data:       responseText,
+		Successful: false,
+	})
+}
+
+func sendOkResponse(c echo.Context, data interface{}) error {
+	return c.JSON(http.StatusOK, Response{
+		Data:       data,
+		Successful: true,
+	})
+}
