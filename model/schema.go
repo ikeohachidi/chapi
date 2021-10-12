@@ -62,6 +62,6 @@ INSERT INTO "query"(route_id, user_id, "name", "value") VALUES(1, 1, 'key1', 'pr
 INSERT INTO "query"(route_id, user_id, "name", "value") VALUES(1, 1, 'key2', 'private2');
 INSERT INTO "query"(route_id, user_id, "name", "value") VALUES(1, 1, 'key3', 'private3');
 
-INSERT INTO header(id, user_id, route_id, "name", "value") VALUES(1, 1, 1, 'Authorization', 'just-some-random-key');
-INSERT INTO header(id, user_id, route_id, "name", "value") VALUES(2, 1, 1, 'Bearer Token', '-random-key');
+INSERT INTO header(user_id, route_id, "name", "value") VALUES(1, 1, 'Authorization', 'just-some-random-key');
+INSERT INTO header(user_id, route_id, "name", "value") VALUES(1, 1, 'Bearer Token', '-random-key');
 `
