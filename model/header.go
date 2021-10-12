@@ -40,7 +40,7 @@ func (c *Conn) DeleteHeader(headerName string, userID, routeID uint) (err error)
 
 func (c *Conn) GetHeader(userID, routeID uint) (headers []Header, err error) {
 	stmt := `
-		SELECT name, value
+		SELECT id, name, value
 		FROM header
 		WHERE user_id = $1 AND route_id = $2
 	`
@@ -55,7 +55,7 @@ func (c *Conn) GetHeader(userID, routeID uint) (headers []Header, err error) {
 	for rows.Next() {
 		var header Header
 
-		err := rows.Scan(&header.Name, &header.Value)
+		err := rows.Scan(&header.ID, &header.Name, &header.Value)
 		if err != nil {
 			return nil, err
 		}
