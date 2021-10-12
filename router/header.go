@@ -58,9 +58,16 @@ func SaveHeader(c echo.Context) error {
 		return sendErrorResponse(c, http.StatusBadRequest, errResponseText)
 	}
 
-	err = app.Db.SaveHeader(header, app.User.ID, uint(routeID))
+	if c.Request().Method == "POST" {
+		err = app.Db.SaveHeader(header, app.User.ID, uint(routeID))
+	}
+
+	if c.Request().Method == "PUT" {
+		err = app.Db.UpdateHeader(header, app.User.ID, uint(routeID))
+	}
+
 	if err != nil {
-		log.Errorf("error saving header: %v", err)
+		log.Errorf("error updating header: %v", err)
 		return sendErrorResponse(c, http.StatusBadRequest, errResponseText)
 	}
 

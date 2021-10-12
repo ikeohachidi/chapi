@@ -20,6 +20,21 @@ func (c *Conn) SaveHeader(header Header, userID, routeID uint) (err error) {
 	return nil
 }
 
+func (c *Conn) UpdateHeader(header Header, userID, routeID uint) (err error) {
+	stmt := `
+		UPDATE header
+		SET name = $1, value = $2
+		WHERE id= $3 AND user_id = $4 AND route_id = $5
+	`
+
+	_, err = c.db.Exec(stmt, header.Name, header.Value, header.ID, userID, routeID)
+	if err != nil {
+		return
+	}
+
+	return nil
+}
+
 func (c *Conn) DeleteHeader(headerName string, userID, routeID uint) (err error) {
 	stmt, err := c.db.Prepare(`
 		DELETE FROM header
