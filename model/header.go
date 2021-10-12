@@ -6,13 +6,16 @@ type Header struct {
 	Value string `json:"value" value:"value"`
 }
 
-func (c *Conn) SaveHeader(header Header, userID, routeID uint) (err error) {
+func (c *Conn) SaveHeader(header *Header, userID, routeID uint) (err error) {
 	stmt := `
 		INSERT INTO	header(user_id, route_id, name, value)
 		VALUES ($1, $2, $3, $4)
+		RETURNING id
 	`
 
-	_, err = c.db.Exec(stmt, userID, routeID, header.Name, header.Value)
+	row := c.db.QueryRow(stmt, userID, routeID, header.Name, header.Value)
+
+	err = row.Scan(&header.ID)
 	if err != nil {
 		return
 	}

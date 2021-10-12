@@ -59,7 +59,7 @@ func SaveHeader(c echo.Context) error {
 	}
 
 	if c.Request().Method == "POST" {
-		err = app.Db.SaveHeader(header, app.User.ID, uint(routeID))
+		err = app.Db.SaveHeader(&header, app.User.ID, uint(routeID))
 	}
 
 	if c.Request().Method == "PUT" {
@@ -71,7 +71,7 @@ func SaveHeader(c echo.Context) error {
 		return sendErrorResponse(c, http.StatusBadRequest, errResponseText)
 	}
 
-	return sendOkResponse(c, "")
+	return sendOkResponse(c, header.ID)
 }
 
 func DeleteHeader(c echo.Context) error {
