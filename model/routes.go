@@ -105,27 +105,3 @@ func (c *Conn) DeleteRoute(routeID uint, userID uint) (err error) {
 
 	return
 }
-
-func (c *Conn) GetRouteFromNameAndPath(name string, path string) (route Route, err error) {
-	queryStmt := `
-		SELECT
-			route.*,
-			array_agg(json_build_object('id', "query".id, 'name', "query"."name", 'value', "query"."value")) as queries
-		FROM route
-		INNER JOIN "query" ON route.id = "query".route_id
-		WHERE route.project_id = (
-				SELECT id FROM project WHERE "name" = $1
-			)
-		AND path = $2
-		GROUP BY route.id
-	`
-
-	row := c.db.QueryRowx(queryStmt, name, path)
-
-	err = row.StructScan(&route)
-	if err != nil {
-		return
-	}
-
-	return
-}

@@ -34,7 +34,7 @@ func StartProxy(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, nil)
 	}
 
-	route, err := app.Db.GetRouteFromNameAndPath(splitHost[0], c.Request().URL.Path)
+	route, err := app.Db.GetRouteRequestData(splitHost[0], c.Request().URL.Path)
 	if err != nil {
 		log.Errorf("error getting project: %v", err)
 		return c.JSON(http.StatusInternalServerError, nil)
