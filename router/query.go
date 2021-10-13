@@ -39,17 +39,22 @@ func SaveQuery(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
 	}
 
-	return c.JSON(http.StatusOK, Response{query.ID, true})
+	return sendOkResponse(c, query.ID)
 }
 
-func GetRouteQueries(c echo.Context) error {
+func GetQueries(c echo.Context) error {
 	app := c.(App)
 	errResponseText := "couldn't get route queries"
 
-	routeID, err := strconv.Atoi(c.Param("routeID"))
+	routeID, err := strconv.Atoi(c.QueryParam("route"))
 	if err != nil {
 		log.Errorf("error converting route Id string to int: %v", err)
 		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
+	}
+
+	if app.User.ID == 0 || routeID == 0 {
+		log.Errorf("error getting user id or route id:\n userID: %v \n routeID: %v")
+		return sendErrorResponse(c, http.StatusBadRequest, errResponseText)
 	}
 
 	queries, err := app.Db.GetRouteQueries(uint(routeID), app.User.ID)
@@ -58,7 +63,7 @@ func GetRouteQueries(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
 	}
 
-	return c.JSON(http.StatusOK, queries)
+	return sendOkResponse(c, queries)
 }
 
 func DeleteQuery(c echo.Context) error {
@@ -89,5 +94,5 @@ func DeleteQuery(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
 	}
 
-	return c.JSON(http.StatusOK, Response{"query deleted successfully", true})
+	return sendOkResponse(c, "query deleted successfully")
 }

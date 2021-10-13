@@ -3,7 +3,7 @@ package model
 type Query struct {
 	ID      uint   `json:"id" db:"id"`
 	RouteID uint   `json:"routeId" db:"route_id"`
-	UserID  uint   `json:"userId" db:"user_id"`
+	UserID  uint   `json:"userId,omitempty" db:"user_id"`
 	Name    string `json:"name" db:"name"`
 	Value   string `json:"value" db:"value"`
 }

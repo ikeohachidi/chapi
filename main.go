@@ -72,7 +72,7 @@ func main() {
 	e.DELETE("/route", router.DeleteRoute)
 
 	// TODO: remove :routeId and use a query instead
-	e.GET("/query/:routeID", router.GetRouteQueries)
+	e.GET("/query", router.GetQueries)
 	e.POST("/query", router.SaveQuery)
 	e.PUT("/query", router.SaveQuery)
 	e.DELETE("/query", router.DeleteQuery)

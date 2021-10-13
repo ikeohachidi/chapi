@@ -9,7 +9,7 @@ import (
 type Route struct {
 	ID          uint      `json:"id" db:"id"`
 	ProjectID   uint      `json:"projectId" db:"project_id"`
-	UserID      uint      `json:"userId" db:"user_id"`
+	UserID      uint      `json:"userId,omitempty" db:"user_id"`
 	Method      string    `json:"method" db:"method"`
 	Path        string    `json:"path" db:"path"`
 	Destination string    `json:"destination" db:"destination"`
@@ -82,13 +82,8 @@ func (c *Conn) UpdateRoute(route Route) (err error) {
 
 func (c *Conn) GetRoutesByProjectId(projectID uint, userID uint) (routes []Route, err error) {
 	query := `
-		SELECT 
-			route.*,
-			array_agg(json_build_object('id', "query".id, 'name', "query"."name", 'value', "query"."value", 'routeId', "query".route_id, 'userId', "query".user_id)) as queries
-		FROM route
-		INNER JOIN "query" ON route.id = "query".route_id
-		WHERE route.project_id = $1 AND route.user_id = $2 
-		GROUP BY route.id
+		SELECT * FROM route
+		WHERE project_id = $1 AND user_id = $2
 	`
 
 	err = c.db.Select(&routes, query, projectID, userID)
