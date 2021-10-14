@@ -1,8 +1,6 @@
 package model
 
 import (
-	"bytes"
-	"encoding/json"
 	"time"
 )
 
@@ -16,33 +14,6 @@ type Route struct {
 	Description string    `json:"description" db:"description"`
 	Body        string    `json:"body" db:"body"`
 	CreatedAt   time.Time `json:"createdAt" db:"created_at"`
-	Queries     Queries   `json:"queries" db:"queries"`
-}
-
-type Queries []Query
-
-func (qu *Queries) Scan(src interface{}) (err error) {
-	buf := bytes.NewBuffer(src.([]uint8))
-
-	trimmed := bytes.TrimPrefix(buf.Bytes(), []byte("{\""))
-	trimmed = bytes.TrimSuffix(trimmed, []byte("\"}"))
-
-	queries := bytes.Split(trimmed, []byte("\",\""))
-
-	for _, query := range queries {
-		var q Query
-
-		cleanedJSON := bytes.ReplaceAll(query, []byte("\\"), []byte(""))
-
-		err = json.Unmarshal(cleanedJSON, &q)
-		if err != nil {
-			return
-		}
-
-		*qu = append(*qu, q)
-	}
-
-	return nil
 }
 
 // SaveRoute will either create a new Route or update and existing one

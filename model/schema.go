@@ -50,18 +50,25 @@ CREATE TABLE IF NOT EXISTS header (
 	value 			VARCHAR(40) NOT NULL
 );
 
+--- array function
+
+CREATE OR REPLACE FUNCTION array_distinct(anyarray)
+RETURNS anyarray AS $$
+  SELECT ARRAY(SELECT DISTINCT unnest($1))
+$$ LANGUAGE sql;
+
 -- dummy data
 INSERT into "user"(email) values('ikeohachidi@gmail.com');
 
 INSERT INTO project("name", user_id) VALUES('foo', 1);
 INSERT INTO project("name", user_id) VALUES('bar', 1);
 
-INSERT into route(project_id, user_id, method, path, destination) VALUES(1, 1, 'GET', '/maps', 'http://localhost.com');
+INSERT into route(project_id, user_id, method, path, destination) VALUES(1, 1, 'GET', '/maps', 'http://localhost:5001');
 
 INSERT INTO "query"(route_id, user_id, "name", "value") VALUES(1, 1, 'key1', 'private1');
 INSERT INTO "query"(route_id, user_id, "name", "value") VALUES(1, 1, 'key2', 'private2');
 INSERT INTO "query"(route_id, user_id, "name", "value") VALUES(1, 1, 'key3', 'private3');
 
 INSERT INTO header(user_id, route_id, "name", "value") VALUES(1, 1, 'Authorization', 'just-some-random-key');
-INSERT INTO header(user_id, route_id, "name", "value") VALUES(1, 1, 'Bearer Token', '-random-key');
+INSERT INTO header(user_id, route_id, "name", "value") VALUES(1, 1, 'Bearer-Token', '-random-key');
 `
