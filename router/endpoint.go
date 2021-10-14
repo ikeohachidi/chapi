@@ -40,9 +40,7 @@ func StartProxy(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, nil)
 	}
 
-	destinationURL := buildURL(c.Request(), route)
-
-	req, err := http.NewRequest(route.Method, destinationURL, nil)
+	req, err := buildRequest(c.Request(), route)
 	if err != nil {
 		log.Errorf("error creating new request: %v", err)
 		return c.JSON(http.StatusInternalServerError, nil)
@@ -65,15 +63,15 @@ func StartProxy(c echo.Context) error {
 	return nil
 }
 
-func buildURL(request *http.Request, route model.Route) string {
+func buildRequest(request *http.Request, endpoint model.Endpoint) (*http.Request, error) {
 	urlQuery := request.URL.RawQuery
 
-	destinationURL := fmt.Sprintf("%v%v?", route.Destination, route.Path)
+	destinationURL := fmt.Sprintf("%v%v?", endpoint.Destination, endpoint.Path)
 
-	if urlQuery != "" || len(route.Queries) != 0 {
+	if urlQuery != "" || len(endpoint.Queries) != 0 {
 		destinationURL += urlQuery
 
-		for index, query := range route.Queries {
+		for index, query := range endpoint.Queries {
 			if index != 0 {
 				destinationURL += "&"
 			}
@@ -86,7 +84,16 @@ func buildURL(request *http.Request, route model.Route) string {
 		}
 	}
 
-	return destinationURL
+	req, err := http.NewRequest(endpoint.Method, destinationURL, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, header := range endpoint.Headers {
+		req.Header.Add(header.Name, header.Value)
+	}
+
+	return req, nil
 }
 
 func RunFrontendOrProxy(c echo.Context) error {
