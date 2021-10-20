@@ -1,5 +1,11 @@
 package model
 
+import (
+	"fmt"
+	"log"
+	"os"
+)
+
 type Query struct {
 	ID      uint   `json:"id" db:"id"`
 	RouteID uint   `json:"routeId" db:"route_id"`
@@ -8,13 +14,16 @@ type Query struct {
 	Value   string `json:"value" db:"value"`
 }
 
+var PG_CRYPT_KEY = os.Getenv("PG_CRYPT_KEY")
+
 // SaveQuery will either create a new query or update(really upsert) an existing one
 func (c *Conn) SaveQuery(query *Query) (err error) {
-	queryStmt := `
+	queryStmt := fmt.Sprintf(`
 		INSERT INTO "query" (route_id, user_id, "name", "value")
-		VALUES ($1, $2, $3, $4)
+		VALUES ($1, $2, pgp_sym_encrypt($3, '%v'), pgp_sym_encrypt($4, '%v'))
 		RETURNING id
-	`
+	`, PG_CRYPT_KEY, PG_CRYPT_KEY)
+
 	stmt, err := c.db.Preparex(queryStmt)
 
 	if err != nil {
@@ -33,11 +42,11 @@ func (c *Conn) SaveQuery(query *Query) (err error) {
 }
 
 func (c *Conn) UpdateQuery(query Query) (err error) {
-	queryStmt := `
+	queryStmt := fmt.Sprintf(`
 		UPDATE "query" 
-		SET "name" = $1, "value" = $2
+		SET "name" = pgp_sym_encrypt($1, '%v'), "value" = pgp_sym_encrypt($2, '%v')
 		WHERE id = $3 AND route_id = $4 AND user_id = $5
-	`
+	`, PG_CRYPT_KEY, PG_CRYPT_KEY)
 
 	_, err = c.db.Exec(queryStmt, query.Name, query.Value, query.ID, query.RouteID, query.UserID)
 
@@ -45,9 +54,10 @@ func (c *Conn) UpdateQuery(query Query) (err error) {
 }
 
 func (c *Conn) GetRouteQueries(routeID uint, userID uint) (queries []Query, err error) {
-	stmt, err := c.db.Preparex(`
-		SELECT id, route_id, name, value FROM query WHERE route_id = $1 AND user_id = $2
-	`)
+	log.Println(PG_CRYPT_KEY)
+	stmt, err := c.db.Preparex(
+		fmt.Sprintf(`SELECT id, route_id, pgp_sym_decrypt(name::bytea, '%v') as name, pgp_sym_decrypt(value::bytea, '%v') as value FROM query WHERE route_id = $1 AND user_id = $2`, PG_CRYPT_KEY, PG_CRYPT_KEY),
+	)
 
 	if err != nil {
 		return
