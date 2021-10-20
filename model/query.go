@@ -2,8 +2,6 @@ package model
 
 import (
 	"fmt"
-	"log"
-	"os"
 )
 
 type Query struct {
@@ -13,8 +11,6 @@ type Query struct {
 	Name    string `json:"name" db:"name"`
 	Value   string `json:"value" db:"value"`
 }
-
-var PG_CRYPT_KEY = os.Getenv("PG_CRYPT_KEY")
 
 // SaveQuery will either create a new query or update(really upsert) an existing one
 func (c *Conn) SaveQuery(query *Query) (err error) {
@@ -54,9 +50,10 @@ func (c *Conn) UpdateQuery(query Query) (err error) {
 }
 
 func (c *Conn) GetRouteQueries(routeID uint, userID uint) (queries []Query, err error) {
-	log.Println(PG_CRYPT_KEY)
 	stmt, err := c.db.Preparex(
-		fmt.Sprintf(`SELECT id, route_id, pgp_sym_decrypt(name::bytea, '%v') as name, pgp_sym_decrypt(value::bytea, '%v') as value FROM query WHERE route_id = $1 AND user_id = $2`, PG_CRYPT_KEY, PG_CRYPT_KEY),
+		fmt.Sprintf(`
+			SELECT id, route_id, pgp_sym_decrypt(name::bytea, '%v') as name, pgp_sym_decrypt(value::bytea, '%v') as value FROM query WHERE route_id = $1 AND user_id = $2
+		`, PG_CRYPT_KEY, PG_CRYPT_KEY),
 	)
 
 	if err != nil {

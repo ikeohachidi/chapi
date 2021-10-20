@@ -13,6 +13,8 @@ type Conn struct {
 	db *sqlx.DB
 }
 
+var PG_CRYPT_KEY = os.Getenv("PG_CRYPT_KEY")
+
 func Connect() Conn {
 	dbPassword := os.Getenv("PSQL_PASS")
 
