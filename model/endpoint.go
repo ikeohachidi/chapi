@@ -3,6 +3,7 @@ package model
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"log"
 	"time"
 )
@@ -48,20 +49,52 @@ func (qu *Queries) Scan(src interface{}) (err error) {
 }
 
 func (c *Conn) GetRouteRequestData(projectName, routePath string) (endpoint Endpoint, err error) {
-	stmt, err := c.db.Preparex(`
+	stmt, err := c.db.Preparex(fmt.Sprintf(`
+		WITH project_values(id) AS
+		(
+			SELECT id 
+			FROM project 
+			WHERE "name" = $1
+		),
+
+		route_id(id) AS 
+		(
+			SELECT id
+			FROM route
+			WHERE project_id = (
+				SELECT id from project_values
+			) AND "path" = $2 
+		),
+
+		query_values(id, route_id, "name", "value") AS 
+		(
+			SELECT id, route_id, pgp_sym_decrypt("name"::bytea, '%v'), pgp_sym_decrypt("value"::bytea, '%v') 
+			FROM "query"
+			WHERE route_id = (SELECT id from route_id)
+		),
+
+		header_values(id, route_id, "name", "value") AS 
+		(
+			SELECT id, route_id, pgp_sym_decrypt("name"::bytea, '%v'), pgp_sym_decrypt("value"::bytea, '%v') 
+			FROM "header" 
+			WHERE route_id = (SELECT id from route_id)
+		)
+
 		SELECT
 			route.*,
-			array_to_json(array_distinct(array_agg("query"))) as queries,
-			array_to_json(array_distinct(array_agg("header"))) as headers
+			array_to_json(array_agg(distinct(header_values))) as "headers",
+			array_to_json(array_agg(distinct(query_values))) as "queries"
 		FROM route
-		INNER JOIN "query" ON "query".route_id = route.id
-		INNER JOIN "header" ON "header".route_id = route.id
+		INNER JOIN header_values ON header_values.route_id = route.id
+		INNER JOIN query_values ON query_values.route_id = route.id
 		WHERE route.project_id = (
-				SELECT id FROM project WHERE "name" = $1 
+				SELECT id FROM project_values
 			)
-		AND path = $2 
+		AND route.id = (
+			SELECT id from route_id
+		) 
 		GROUP BY route.id;
-	`)
+	`, PG_CRYPT_KEY, PG_CRYPT_KEY, PG_CRYPT_KEY, PG_CRYPT_KEY))
 
 	if err != nil {
 		return
