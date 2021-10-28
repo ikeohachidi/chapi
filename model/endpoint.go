@@ -68,14 +68,14 @@ func (c *Conn) GetRouteRequestData(projectName, routePath string) (endpoint Endp
 
 		query_values(id, route_id, "name", "value") AS 
 		(
-			SELECT id, route_id, pgp_sym_decrypt("name"::bytea, '%v'), pgp_sym_decrypt("value"::bytea, '%v') 
+			SELECT id, route_id, pgp_sym_decrypt("name"::bytea, '%[1]v'), pgp_sym_decrypt("value"::bytea, '%[1]v') 
 			FROM "query"
 			WHERE route_id = (SELECT id from route_id)
 		),
 
 		header_values(id, route_id, "name", "value") AS 
 		(
-			SELECT id, route_id, pgp_sym_decrypt("name"::bytea, '%v'), pgp_sym_decrypt("value"::bytea, '%v') 
+			SELECT id, route_id, pgp_sym_decrypt("name"::bytea, '%[1]v'), pgp_sym_decrypt("value"::bytea, '%[1]v') 
 			FROM "header" 
 			WHERE route_id = (SELECT id from route_id)
 		)
@@ -94,7 +94,7 @@ func (c *Conn) GetRouteRequestData(projectName, routePath string) (endpoint Endp
 			SELECT id from route_id
 		) 
 		GROUP BY route.id;
-	`, PG_CRYPT_KEY, PG_CRYPT_KEY, PG_CRYPT_KEY, PG_CRYPT_KEY))
+	`, PG_CRYPT_KEY))
 
 	if err != nil {
 		return

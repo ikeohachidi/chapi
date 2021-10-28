@@ -11,9 +11,9 @@ type Header struct {
 func (c *Conn) SaveHeader(header *Header, userID, routeID uint) (err error) {
 	stmt := fmt.Sprintf(`
 		INSERT INTO	header(user_id, route_id, name, value)
-		VALUES ($1, $2, pgp_sym_encrypt($3, '%v'), pgp_sym_encrypt($4, '%v'))
+		VALUES ($1, $2, pgp_sym_encrypt($3, '%[1]v'), pgp_sym_encrypt($4, '%[1]v'))
 		RETURNING id
-	`, PG_CRYPT_KEY, PG_CRYPT_KEY)
+	`, PG_CRYPT_KEY)
 
 	row := c.db.QueryRow(stmt, userID, routeID, header.Name, header.Value)
 
@@ -28,9 +28,9 @@ func (c *Conn) SaveHeader(header *Header, userID, routeID uint) (err error) {
 func (c *Conn) UpdateHeader(header Header, userID, routeID uint) (err error) {
 	stmt := fmt.Sprintf(`
 		UPDATE header
-		SET name = pgp_sym_encrypt($1, '%v'), value = pgp_sym_encrypt($2, '%v')
+		SET name = pgp_sym_encrypt($1, '%[1]v'), value = pgp_sym_encrypt($2, '%[1]v')
 		WHERE id= $3 AND user_id = $4 AND route_id = $5
-	`, PG_CRYPT_KEY, PG_CRYPT_KEY)
+	`, PG_CRYPT_KEY)
 
 	_, err = c.db.Exec(stmt, header.Name, header.Value, header.ID, userID, routeID)
 	if err != nil {
@@ -60,10 +60,10 @@ func (c *Conn) DeleteHeader(headerName string, userID, routeID uint) (err error)
 
 func (c *Conn) GetHeader(userID, routeID uint) (headers []Header, err error) {
 	stmt := fmt.Sprintf(`
-		SELECT id, pgp_sym_decrypt(name::bytea, '%v') as name, pgp_sym_decrypt(value::bytea, '%v') as value
+		SELECT id, pgp_sym_decrypt(name::bytea, '%[1]v') as name, pgp_sym_decrypt(value::bytea, '%[1]v') as value
 		FROM header
 		WHERE user_id = $1 AND route_id = $2
-	`, PG_CRYPT_KEY, PG_CRYPT_KEY)
+	`, PG_CRYPT_KEY)
 
 	rows, err := c.db.Query(stmt, userID, routeID)
 	if err != nil {

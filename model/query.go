@@ -16,9 +16,9 @@ type Query struct {
 func (c *Conn) SaveQuery(query *Query) (err error) {
 	queryStmt := fmt.Sprintf(`
 		INSERT INTO "query" (route_id, user_id, "name", "value")
-		VALUES ($1, $2, pgp_sym_encrypt($3, '%v'), pgp_sym_encrypt($4, '%v'))
+		VALUES ($1, $2, pgp_sym_encrypt($3, '%[1]v'), pgp_sym_encrypt($4, '%[1]v'))
 		RETURNING id
-	`, PG_CRYPT_KEY, PG_CRYPT_KEY)
+	`, PG_CRYPT_KEY)
 
 	stmt, err := c.db.Preparex(queryStmt)
 
@@ -40,9 +40,9 @@ func (c *Conn) SaveQuery(query *Query) (err error) {
 func (c *Conn) UpdateQuery(query Query) (err error) {
 	queryStmt := fmt.Sprintf(`
 		UPDATE "query" 
-		SET "name" = pgp_sym_encrypt($1, '%v'), "value" = pgp_sym_encrypt($2, '%v')
+		SET "name" = pgp_sym_encrypt($1, '%[1]v'), "value" = pgp_sym_encrypt($2, '%[1]v')
 		WHERE id = $3 AND route_id = $4 AND user_id = $5
-	`, PG_CRYPT_KEY, PG_CRYPT_KEY)
+	`, PG_CRYPT_KEY)
 
 	_, err = c.db.Exec(queryStmt, query.Name, query.Value, query.ID, query.RouteID, query.UserID)
 
@@ -52,8 +52,8 @@ func (c *Conn) UpdateQuery(query Query) (err error) {
 func (c *Conn) GetRouteQueries(routeID uint, userID uint) (queries []Query, err error) {
 	stmt, err := c.db.Preparex(
 		fmt.Sprintf(`
-			SELECT id, route_id, pgp_sym_decrypt(name::bytea, '%v') as name, pgp_sym_decrypt(value::bytea, '%v') as value FROM query WHERE route_id = $1 AND user_id = $2
-		`, PG_CRYPT_KEY, PG_CRYPT_KEY),
+			SELECT id, route_id, pgp_sym_decrypt(name::bytea, '%[1]v') as name, pgp_sym_decrypt(value::bytea, '%[1]v') as value FROM query WHERE route_id = $1 AND user_id = $2
+		`, PG_CRYPT_KEY),
 	)
 
 	if err != nil {
