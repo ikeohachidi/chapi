@@ -42,13 +42,11 @@ func (conn *Conn) CreateProject(name string, userID uint) (projectID uint, err e
 
 func (conn *Conn) ProjectExists(name string) (exists bool, err error) {
 	stmt, err := conn.db.Preparex(`
-		SELECT
-			CASE 
-				WHEN "name" IS NOT NULL THEN 1
-				ELSE 0
-			END "exists"
-		FROM project
-		WHERE "name" ILIKE '%' || $1 || '%'
+		SELECT EXISTS (
+			SELECT *
+			FROM project
+			WHERE "name" ILIKE '%' || $1 || '%'
+		)
 	`)
 
 	if err != nil {
