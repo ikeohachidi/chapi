@@ -77,7 +77,9 @@ func (conn *Conn) GetProjectByName(name string) (project Project, err error) {
 }
 
 // TODO: can't figure out how to retrieve this properly
-func (conn *Conn) GetProjects(userID uint) (projects []Project, err error) {
+func (conn *Conn) GetProjects(userID uint) ([]Project, error) {
+	projects := []Project{}
+
 	query := `
 		SELECT	project.*, 
 				route.*, 
@@ -87,21 +89,26 @@ func (conn *Conn) GetProjects(userID uint) (projects []Project, err error) {
 		LEFT OUTER JOIN "query" on route.id = "query".route_id
 		WHERE project.user_id = $1 
 	`
-	err = conn.db.Select(&projects, query, userID)
-
-	return
-}
-
-func (conn *Conn) GetUserProjects(userID uint) (projects []Project, err error) {
-	query := `SELECT * FROM project WHERE user_id = $1`
-
-	err = conn.db.Select(&projects, query, userID)
-
+	err := conn.db.Select(&projects, query, userID)
 	if err != nil {
-		return
+		return nil, err
 	}
 
-	return
+	return projects, err
+}
+
+func (conn *Conn) GetUserProjects(userID uint) ([]Project, error) {
+	projects := []Project{}
+
+	query := `SELECT * FROM project WHERE user_id = $1`
+
+	err := conn.db.Select(&projects, query, userID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return projects, nil
 }
 
 func (conn *Conn) DeleteProject(projectID uint, userID uint) (err error) {
