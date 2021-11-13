@@ -44,9 +44,9 @@ func main() {
 			user.ID = 1
 
 			cc := router.App{
-				c,
-				db,
-				user,
+				Context: c,
+				Db:      db,
+				User:    user,
 			}
 
 			return next(cc)
