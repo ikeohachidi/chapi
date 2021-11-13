@@ -1,12 +1,12 @@
 package model
 
 type PermOrigin struct {
-	ID      uint   `json:"id"`
-	URL     string `json:"url"`
-	RouteID uint   `json:"route_id"`
+	ID      uint   `json:"id" db:"id"`
+	URL     string `json:"url" db:"url"`
+	RouteID uint   `json:"routeId" db:"route_id"`
 }
 
-func (c *Conn) CreatePermOrigin(permOrigin PermOrigin) (err error) {
+func (c *Conn) CreatePermOrigin(permOrigin *PermOrigin) (err error) {
 	stmt, err := c.db.Preparex(`INSERT INTO perm_origin(url, route_id) VALUES($1, $2) RETURNING id`)
 	if err != nil {
 		return
@@ -22,9 +22,12 @@ func (c *Conn) CreatePermOrigin(permOrigin PermOrigin) (err error) {
 func (c *Conn) GetPermOrigins(routeID uint) ([]PermOrigin, error) {
 	origins := []PermOrigin{}
 
-	query := `SELECT * FROM perm_origin WHERE route_id = $1`
+	stmt, err := c.db.Preparex(`SELECT * FROM perm_origin WHERE route_id = $1`)
+	if err != nil {
+		return nil, err
+	}
 
-	err := c.db.Select(&origins, query, routeID)
+	err = stmt.Select(&origins, routeID)
 	if err != nil {
 		return nil, err
 	}
@@ -32,7 +35,7 @@ func (c *Conn) GetPermOrigins(routeID uint) ([]PermOrigin, error) {
 	return origins, nil
 }
 
-func (c *Conn) UpdatePermiOrigin(permOrigin PermOrigin) (err error) {
+func (c *Conn) UpdatePermOrigin(permOrigin PermOrigin) (err error) {
 	stmt, err := c.db.Preparex(`UPDATE perm_origin SET url = $1 WHERE id = $2 AND route_id = $3`)
 	if err != nil {
 		return
