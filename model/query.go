@@ -49,7 +49,9 @@ func (c *Conn) UpdateQuery(query Query) (err error) {
 	return
 }
 
-func (c *Conn) GetRouteQueries(routeID uint, userID uint) (queries []Query, err error) {
+func (c *Conn) GetRouteQueries(routeID uint, userID uint) ([]Query, error) {
+	queries := []Query{}
+
 	stmt, err := c.db.Preparex(
 		fmt.Sprintf(`
 			SELECT id, route_id, pgp_sym_decrypt(name::bytea, '%[1]v') as name, pgp_sym_decrypt(value::bytea, '%[1]v') as value FROM query WHERE route_id = $1 AND user_id = $2
@@ -57,15 +59,15 @@ func (c *Conn) GetRouteQueries(routeID uint, userID uint) (queries []Query, err 
 	)
 
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	err = stmt.Select(&queries, routeID, userID)
 	if err != nil {
-		return
+		return nil, err
 	}
 
-	return
+	return queries, nil
 }
 
 func (c *Conn) DeleteQuery(query Query) (err error) {

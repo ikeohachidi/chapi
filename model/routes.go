@@ -51,19 +51,21 @@ func (c *Conn) UpdateRoute(route Route) (err error) {
 	return
 }
 
-func (c *Conn) GetRoutesByProjectId(projectID uint, userID uint) (routes []Route, err error) {
+func (c *Conn) GetRoutesByProjectId(projectID uint, userID uint) ([]Route, error) {
+	routes := []Route{}
+
 	query := `
 		SELECT * FROM route
 		WHERE project_id = $1 AND user_id = $2
 	`
 
-	err = c.db.Select(&routes, query, projectID, userID)
+	err := c.db.Select(&routes, query, projectID, userID)
 
 	if err != nil {
-		return
+		return nil, err
 	}
 
-	return
+	return routes, nil
 }
 
 func (c *Conn) DeleteRoute(routeID uint, userID uint) (err error) {

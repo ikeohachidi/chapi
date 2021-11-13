@@ -58,7 +58,9 @@ func (c *Conn) DeleteHeader(headerName string, userID, routeID uint) (err error)
 	return nil
 }
 
-func (c *Conn) GetHeader(userID, routeID uint) (headers []Header, err error) {
+func (c *Conn) GetHeader(userID, routeID uint) ([]Header, error) {
+	headers := []Header{}
+
 	stmt := fmt.Sprintf(`
 		SELECT id, pgp_sym_decrypt(name::bytea, '%[1]v') as name, pgp_sym_decrypt(value::bytea, '%[1]v') as value
 		FROM header
@@ -67,7 +69,7 @@ func (c *Conn) GetHeader(userID, routeID uint) (headers []Header, err error) {
 
 	rows, err := c.db.Query(stmt, userID, routeID)
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	defer rows.Close()
@@ -84,8 +86,8 @@ func (c *Conn) GetHeader(userID, routeID uint) (headers []Header, err error) {
 	}
 
 	if err = rows.Err(); err != nil {
-		return
+		return nil, err
 	}
 
-	return
+	return headers, nil
 }

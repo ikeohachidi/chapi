@@ -62,10 +62,15 @@ func (conn *Conn) ProjectExists(name string) (exists bool, err error) {
 	return
 }
 
-func (conn *Conn) ListProjects() (projects []Project, err error) {
-	err = conn.db.Select(&projects, "SELECT * FROM project")
+func (conn *Conn) ListProjects() ([]Project, error) {
+	projects := []Project{}
 
-	return
+	err := conn.db.Select(&projects, "SELECT * FROM project")
+	if err != nil {
+		return nil, err
+	}
+
+	return projects, nil
 }
 
 func (conn *Conn) GetProjectByName(name string) (project Project, err error) {
