@@ -89,7 +89,7 @@ func DeleteProject(c echo.Context) error {
 	projectID, err := strconv.Atoi(app.Param("id"))
 
 	if err != nil {
-		log.Fatalf("couldn't convert id param: %v", err)
+		log.Errorf("couldn't convert id param: %v", err)
 		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
 	}
 
