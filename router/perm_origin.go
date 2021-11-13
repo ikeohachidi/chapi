@@ -23,11 +23,11 @@ func SavePermOrigins(c echo.Context) error {
 	}
 
 	if c.Request().Method == "POST" {
-		err = app.Db.CreatePermOrigin(permOrigin)
+		err = app.Db.CreatePermOrigin(&permOrigin)
 	}
 
 	if c.Request().Method == "PUT" {
-		err = app.Db.CreatePermOrigin(permOrigin)
+		err = app.Db.UpdatePermOrigin(permOrigin)
 	}
 
 	if err != nil {
@@ -42,13 +42,15 @@ func SavePermOrigins(c echo.Context) error {
 func GetPermOrigins(c echo.Context) error {
 	app := c.(App)
 
-	routeID, err := strconv.Atoi(app.Request().URL.Path)
+	routeID, err := strconv.Atoi(c.QueryParam("route_id"))
 	if err != nil {
+		log.Errorf("couldn't get permisson origins %v", err)
 		return c.JSON(http.StatusBadRequest, nil)
 	}
 
 	permOrigins, err := app.Db.GetPermOrigins(uint(routeID))
 	if err != nil {
+		log.Errorf("couldn't get permisson origins %v", err)
 		return c.JSON(http.StatusInternalServerError, nil)
 	}
 
@@ -58,11 +60,21 @@ func GetPermOrigins(c echo.Context) error {
 func DeletePermOrigin(c echo.Context) error {
 	app := c.(App)
 
-	var permOrigin model.PermOrigin
-
-	err := json.NewDecoder(app.Request().Body).Decode(permOrigin)
+	id, err := strconv.Atoi(c.QueryParam("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, nil)
+		log.Errorf("error converting query Id string to int: %v", err)
+		return c.JSON(http.StatusBadRequest, nil)
+	}
+
+	routeID, err := strconv.Atoi(c.QueryParam("route_id"))
+	if err != nil {
+		log.Errorf("error converting route Id string to int: %v", err)
+		return c.JSON(http.StatusBadRequest, nil)
+	}
+
+	permOrigin := model.PermOrigin{
+		ID:      uint(id),
+		RouteID: uint(routeID),
 	}
 
 	err = app.Db.DeletePermOrigin(permOrigin)
