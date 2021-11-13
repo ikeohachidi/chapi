@@ -41,7 +41,6 @@ func main() {
 				user.Email = session.Values["email"].(string)
 				user.ID = session.Values["id"].(uint)
 			}
-			user.ID = 1
 
 			cc := router.App{
 				Context: c,
@@ -66,7 +65,7 @@ func main() {
 	e.POST("/project", router.CreateProject)
 	e.DELETE("/project/:id", router.DeleteProject)
 
-	e.GET("/route/:projectID", router.GetProjectRoutes)
+	e.GET("/route", router.GetProjectRoutes)
 	e.POST("/route", router.SaveRoute)
 	e.PUT("/route", router.SaveRoute)
 	e.DELETE("/route", router.DeleteRoute)
@@ -81,6 +80,11 @@ func main() {
 	e.POST("/header", router.SaveHeader)
 	e.PUT("/header", router.SaveHeader)
 	e.DELETE("/header", router.DeleteHeader)
+
+	e.GET("/perm_origin", router.GetPermOrigins)
+	e.POST("/perm_origin", router.SavePermOrigins)
+	e.PUT("/perm_origin", router.SavePermOrigins)
+	e.DELETE("/perm_origin", router.DeletePermOrigin)
 
 	e.Logger.Fatal(e.Start(":5000"))
 }

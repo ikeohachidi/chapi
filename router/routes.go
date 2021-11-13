@@ -45,7 +45,7 @@ func SaveRoute(c echo.Context) error {
 
 func GetProjectRoutes(c echo.Context) error {
 	app := c.(App)
-	projectID, _ := strconv.Atoi(c.Param("projectID"))
+	projectID, _ := strconv.Atoi(c.QueryParam("project"))
 	errResponseText := "couldn't retrieve project route"
 
 	if app.User.ID == 0 {
