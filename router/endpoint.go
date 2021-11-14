@@ -75,6 +75,7 @@ func RunProxy(c echo.Context, endpoint model.Endpoint) error {
 		log.Errorf("error reading response body: %v", err)
 		return c.JSON(http.StatusInternalServerError, nil)
 	}
+	resp.Body.Close()
 
 	c.Response().Write(responseBody)
 
