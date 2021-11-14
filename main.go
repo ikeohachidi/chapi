@@ -33,8 +33,11 @@ func main() {
 			var user model.User
 
 			if err != nil {
-				log.Fatal("couldn't get chapi session")
-				return c.JSON(http.StatusBadRequest, router.Response{"Couldn't get chapi session", false})
+				log.Errorf("couldn't get chapi session")
+				return c.JSON(http.StatusBadRequest, router.Response{
+					Data:       "Couldn't get chapi session",
+					Successful: false,
+				})
 			}
 
 			if _, ok := session.Values["access_token"]; ok {
