@@ -54,7 +54,12 @@ CREATE TABLE IF NOT EXISTS header (
 	value 			TEXT NOT NULL
 );
 
---- array function
+DROP TABLE IF EXISTS perm_origin CASCADE;
+CREATE TABLE IF NOT EXISTS perm_origin (
+	id 				SERIAL PRIMARY KEY,
+	route_id		INTEGER REFERENCES route(id) ON DELETE CASCADE,
+	url 			TEXT NOT NULL
+);
 
 CREATE OR REPLACE FUNCTION array_distinct(anyarray)
 RETURNS anyarray AS $$
