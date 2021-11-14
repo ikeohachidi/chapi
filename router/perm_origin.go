@@ -79,9 +79,9 @@ func DeletePermOrigin(c echo.Context) error {
 
 	err = app.Db.DeletePermOrigin(permOrigin)
 	if err != nil {
-		log.Fatalf("couldn't delete permission origin %v", err)
+		log.Errorf("couldn't delete permission origin %v", err)
 		c.JSON(http.StatusInternalServerError, nil)
 	}
 
-	return c.JSON(http.StatusOK, nil)
+	return c.JSON(http.StatusOK, Response{nil, true})
 }
