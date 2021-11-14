@@ -19,7 +19,7 @@ type Endpoint struct {
 	CreatedAt   time.Time   `json:"createdAt" db:"created_at"`
 	Queries     Queries     `json:"queries" db:"queries"`
 	Headers     Headers     `json:"headers" db:"headers"`
-	PermOrigin  PermOrigins `json:"permOrigins" db:"perm_origins"`
+	PermOrigins PermOrigins `json:"permOrigins" db:"perm_origins"`
 }
 
 func JSONUnmarshaller(src interface{}, dst interface{}) (err error) {

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 	"text/template"
 
@@ -26,21 +27,38 @@ func HandleFrontend(c echo.Context) error {
 	return nil
 }
 
-func StartProxy(c echo.Context) error {
+func InitiateService(c echo.Context) error {
 	app := c.(App)
+	origin := c.Request().Header.Get("Origin")
 
 	splitHost := strings.Split(c.Request().Host, ".")
 	if splitHost[0] == "chapi" || len(splitHost) == 0 {
 		return c.JSON(http.StatusBadRequest, nil)
 	}
 
-	route, err := app.Db.GetRouteRequestData(splitHost[0], c.Request().URL.Path)
+	endpoint, err := app.Db.GetRouteRequestData(splitHost[0], c.Request().URL.Path)
 	if err != nil {
 		log.Errorf("error getting project: %v", err)
 		return c.JSON(http.StatusInternalServerError, nil)
 	}
 
-	req, err := buildRequest(c.Request(), route)
+	if len(endpoint.PermOrigins) == 0 || origin == os.Getenv("LOCAL_FRONTEND") {
+		err = RunProxy(c, endpoint)
+		return err
+	}
+
+	for _, endpointOrigin := range endpoint.PermOrigins {
+		if endpointOrigin.URL == origin {
+			err = RunProxy(c, endpoint)
+			return err
+		}
+	}
+
+	return nil
+}
+
+func RunProxy(c echo.Context, endpoint model.Endpoint) error {
+	req, err := buildRequest(c.Request(), endpoint)
 	if err != nil {
 		log.Errorf("error creating new request: %v", err)
 		return c.JSON(http.StatusInternalServerError, nil)
@@ -106,7 +124,7 @@ func RunFrontendOrProxy(c echo.Context) error {
 		return nil
 	}
 
-	StartProxy(c)
+	InitiateService(c)
 
 	return nil
 }
