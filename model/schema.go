@@ -61,20 +61,9 @@ CREATE TABLE IF NOT EXISTS perm_origin (
 	url 			TEXT NOT NULL
 );
 
-CREATE OR REPLACE FUNCTION array_distinct(anyarray)
-RETURNS anyarray AS $$
-  SELECT ARRAY(SELECT DISTINCT unnest($1))
-$$ LANGUAGE sql;
-
--- dummy data
-INSERT into "user"(email) values('ikeohachidi@gmail.com');
-
-INSERT INTO project("name", user_id) VALUES('foo', 1);
-INSERT INTO project("name", user_id) VALUES('bar', 1);
-
-INSERT into route(project_id, user_id, method, path, destination) VALUES(1, 1, 'GET', '/maps', 'http://localhost:5001');
-
-INSERT INTO "query"(route_id, user_id, "name", "value") VALUES(1, 1, pgp_sym_encrypt('key1', '%v'), pgp_sym_encrypt('private1', '%v'));
-
-INSERT INTO header(user_id, route_id, "name", "value") VALUES(1, 1, pgp_sym_encrypt('Authorization', '%v'), pgp_sym_encrypt('-random-key', '%v'));
-`, PG_CRYPT_KEY, PG_CRYPT_KEY, PG_CRYPT_KEY, PG_CRYPT_KEY)
+INSERT INTO "user"(email) VALUES ('ikeohachidi@gmail.com');
+INSERT INTO project(user_id, name) VALUES (1, 'foo');
+INSERT INTO route(project_id, user_id, method, path, description, destination) VALUES (1, 1, 'GET', '/users', 'None existent for now', 'http://localhost:5001');
+INSERT INTO query (user_id, route_id, name, value) VALUES (1, 1, pgp_sym_encrypt('private-key-1', '%[1]v'), pgp_sym_encrypt('value-pair', '%[1]v'));
+INSERT INTO perm_origin (route_id, url) VALUES (1, 'http://localhost:8080');
+`, PG_CRYPT_KEY)
