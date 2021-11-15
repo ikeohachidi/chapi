@@ -41,29 +41,25 @@ func SaveHeader(c echo.Context) error {
 
 	var header model.Header
 
-	routeID, err := strconv.Atoi(c.QueryParam("route"))
-	if err != nil {
-		log.Errorf("error converting route id query to int: %v", err)
-		return sendErrorResponse(c, http.StatusInternalServerError, errResponseText)
-	}
-
-	err = json.NewDecoder(c.Request().Body).Decode(&header)
+	err := json.NewDecoder(c.Request().Body).Decode(&header)
 	if err != nil {
 		log.Errorf("error decoding header request body: %v", err)
 		return sendErrorResponse(c, http.StatusInternalServerError, errResponseText)
 	}
 
-	if app.User.ID == 0 || routeID == 0 {
+	if app.User.ID == 0 {
 		log.Errorf("error getting user id or route id:\n userID: %v \n routeID: %v")
 		return sendErrorResponse(c, http.StatusBadRequest, errResponseText)
 	}
 
+	header.UserID = app.User.ID
+
 	if c.Request().Method == "POST" {
-		err = app.Db.SaveHeader(&header, app.User.ID, uint(routeID))
+		err = app.Db.SaveHeader(&header)
 	}
 
 	if c.Request().Method == "PUT" {
-		err = app.Db.UpdateHeader(header, app.User.ID, uint(routeID))
+		err = app.Db.UpdateHeader(header)
 	}
 
 	if err != nil {
