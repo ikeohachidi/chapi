@@ -8,7 +8,7 @@ type PermOrigin struct {
 	RouteID uint   `json:"routeId" db:"route_id"`
 }
 
-func (p *PermOrigin) Create(db sqlx.DB) (err error) {
+func (p *PermOrigin) Create(db *sqlx.DB) (err error) {
 	stmt, err := db.Preparex(`INSERT INTO perm_origin(url, route_id) VALUES($1, $2) RETURNING id`)
 	if err != nil {
 		return
@@ -21,7 +21,7 @@ func (p *PermOrigin) Create(db sqlx.DB) (err error) {
 	return
 }
 
-func (p *PermOrigin) FetchAll(db sqlx.DB) ([]PermOrigin, error) {
+func (p *PermOrigin) FetchAll(db *sqlx.DB) ([]PermOrigin, error) {
 	origins := []PermOrigin{}
 
 	stmt, err := db.Preparex(`SELECT * FROM perm_origin WHERE route_id = $1`)
@@ -37,7 +37,7 @@ func (p *PermOrigin) FetchAll(db sqlx.DB) ([]PermOrigin, error) {
 	return origins, nil
 }
 
-func (p *PermOrigin) Update(db sqlx.DB) (err error) {
+func (p *PermOrigin) Update(db *sqlx.DB) (err error) {
 	stmt, err := db.Preparex(`UPDATE perm_origin SET url = $1 WHERE id = $2 AND route_id = $3`)
 	if err != nil {
 		return
@@ -47,7 +47,7 @@ func (p *PermOrigin) Update(db sqlx.DB) (err error) {
 	return
 }
 
-func (p *PermOrigin) DeletePermOrigin(db sqlx.DB) (err error) {
+func (p *PermOrigin) Delete(db *sqlx.DB) (err error) {
 	stmt, err := db.Preparex(`DELETE FROM perm_origin WHERE id = $1 AND route_id = $2`)
 	if err != nil {
 		return

@@ -13,7 +13,7 @@ type Project struct {
 	CreatedAt string `json:"createdAt" db:"created_at"`
 }
 
-func (p *Project) Create(db sqlx.DB) (err error) {
+func (p *Project) Create(db *sqlx.DB) (err error) {
 	stmt, err := db.Preparex(`
 		WITH e AS (
 			INSERT INTO project ("name", user_id) 
@@ -42,7 +42,7 @@ func (p *Project) Create(db sqlx.DB) (err error) {
 	return
 }
 
-func (p *Project) ProjectExists(db sqlx.DB) (exists bool, err error) {
+func (p *Project) ProjectExists(db *sqlx.DB) (exists bool, err error) {
 	stmt, err := db.Preparex(`
 		SELECT EXISTS (
 			SELECT *
@@ -64,7 +64,7 @@ func (p *Project) ProjectExists(db sqlx.DB) (exists bool, err error) {
 	return
 }
 
-func (p *Project) ListProjects(db sqlx.DB) ([]Project, error) {
+func ListProjects(db *sqlx.DB) ([]Project, error) {
 	projects := []Project{}
 
 	err := db.Select(&projects, "SELECT * FROM project")
@@ -75,14 +75,14 @@ func (p *Project) ListProjects(db sqlx.DB) ([]Project, error) {
 	return projects, nil
 }
 
-func (p *Project) GetProjectByName(db sqlx.DB) (project Project, err error) {
+func (p *Project) GetProjectByName(db *sqlx.DB) (project Project, err error) {
 	err = db.Select(&project, fmt.Sprintf("SELECT * FROM project WHERE name = %v", p.Name))
 
 	return
 }
 
 // TODO: can't figure out how to retrieve this properly
-func (p *Project) GetProjects(db sqlx.DB) ([]Project, error) {
+func (p *Project) GetProjects(db *sqlx.DB) ([]Project, error) {
 	projects := []Project{}
 
 	query := `
@@ -102,7 +102,7 @@ func (p *Project) GetProjects(db sqlx.DB) ([]Project, error) {
 	return projects, err
 }
 
-func (p *Project) GetUserProjects(db sqlx.DB) ([]Project, error) {
+func (p *Project) GetUserProjects(db *sqlx.DB) ([]Project, error) {
 	projects := []Project{}
 
 	query := `SELECT * FROM project WHERE user_id = $1`
@@ -116,7 +116,7 @@ func (p *Project) GetUserProjects(db sqlx.DB) ([]Project, error) {
 	return projects, nil
 }
 
-func (p *Project) DeleteProject(db sqlx.DB) (err error) {
+func (p *Project) DeleteProject(db *sqlx.DB) (err error) {
 	_, err = db.Exec("DELETE FROM project WHERE id=$1 AND user_id=$2", p.ID, p.UserID)
 
 	return

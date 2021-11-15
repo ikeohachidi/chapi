@@ -28,11 +28,11 @@ func SaveRoute(c echo.Context) error {
 	HTTPMethod := c.Request().Method
 
 	if HTTPMethod == http.MethodPost {
-		err = app.Db.SaveRoute(&route)
+		err = route.Create(app.Conn.Db)
 	}
 
 	if HTTPMethod == http.MethodPut {
-		err = app.Db.UpdateRoute(route)
+		err = route.Update(app.Conn.Db)
 	}
 
 	if err != nil {
@@ -52,8 +52,12 @@ func GetProjectRoutes(c echo.Context) error {
 		log.Errorf("can't get project routes with invalid user id")
 		return c.JSON(http.StatusBadRequest, nil)
 	}
+	route := model.Route{
+		ProjectID: uint(projectID),
+		UserID:    app.User.ID,
+	}
 
-	routes, err := app.Db.GetRoutesByProjectId(uint(projectID), app.User.ID)
+	routes, err := route.GetRoutesByProjectId(app.Conn.Db)
 	if err != nil {
 		log.Errorf("couldn't retrieve project routes %v", err)
 		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
@@ -71,7 +75,12 @@ func DeleteRoute(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, nil)
 	}
 
-	err := app.Db.DeleteRoute(uint(routeID), app.User.ID)
+	route := model.Route{
+		ID:     uint(routeID),
+		UserID: uint(app.User.ID),
+	}
+
+	err := route.Delete(app.Conn.Db)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, Response{errResponseText, false})
 	}

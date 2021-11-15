@@ -14,7 +14,7 @@ type Header struct {
 	Value   string `json:"value" value:"value"`
 }
 
-func (h *Header) Create(db sqlx.DB) (err error) {
+func (h *Header) Create(db *sqlx.DB) (err error) {
 	stmt := fmt.Sprintf(`
 		INSERT INTO	header(user_id, route_id, name, value)
 		VALUES ($1, $2, pgp_sym_encrypt($3, '%[1]v'), pgp_sym_encrypt($4, '%[1]v'))
@@ -31,7 +31,7 @@ func (h *Header) Create(db sqlx.DB) (err error) {
 	return nil
 }
 
-func (h *Header) Update(db sqlx.DB) (err error) {
+func (h *Header) Update(db *sqlx.DB) (err error) {
 	stmt := fmt.Sprintf(`
 		UPDATE header
 		SET name = pgp_sym_encrypt($1, '%[1]v'), value = pgp_sym_encrypt($2, '%[1]v')
@@ -46,7 +46,7 @@ func (h *Header) Update(db sqlx.DB) (err error) {
 	return nil
 }
 
-func (h *Header) Delete(db sqlx.DB) (err error) {
+func (h *Header) Delete(db *sqlx.DB) (err error) {
 	stmt, err := db.Prepare(`DELETE FROM header WHERE id = $1 AND user_id = $2 AND route_id = $3`)
 
 	if err != nil {
@@ -61,7 +61,7 @@ func (h *Header) Delete(db sqlx.DB) (err error) {
 	return nil
 }
 
-func (h *Header) FetchAll(db sqlx.DB) ([]Header, error) {
+func (h *Header) FetchAll(db *sqlx.DB) ([]Header, error) {
 	headers := []Header{}
 
 	stmt := fmt.Sprintf(`

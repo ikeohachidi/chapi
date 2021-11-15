@@ -67,12 +67,12 @@ func OauthGithubRedirect(c echo.Context) error {
 	err = json.NewDecoder(res.Body).Decode(&user)
 	errRedirect(c, FRONTEND_URL, err)
 
-	userID, err := cc.Db.CreateUser(user)
+	err = user.Create(cc.Conn.Db)
 	errRedirect(c, FRONTEND_URL, err)
 
 	// set cookie
 	session, _ := store.Get(c.Request(), "chapi_session")
-	session.Values["id"] = userID
+	session.Values["id"] = user.ID
 	session.Values["email"] = user.Email
 	session.Values["access_token"] = token.AccessToken
 	session.Save(c.Request(), c.Response().Writer)

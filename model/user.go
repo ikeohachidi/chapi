@@ -12,7 +12,7 @@ type User struct {
 	CreatedAt time.Time `json:"created_at" db:"created_at"`
 }
 
-func (u *User) Create(db sqlx.DB) (err error) {
+func (u *User) Create(db *sqlx.DB) (err error) {
 	stmt, err := db.Preparex(`
 		WITH e AS(
 			INSERT INTO "user" (email) 
@@ -40,7 +40,7 @@ func (u *User) Create(db sqlx.DB) (err error) {
 	return
 }
 
-func (u *User) Delete(db sqlx.DB) (err error) {
+func (u *User) Delete(db *sqlx.DB) (err error) {
 	_, err = db.Exec("DELETE FROM user WHERE id=$1", u.ID)
 
 	return

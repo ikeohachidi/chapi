@@ -19,7 +19,7 @@ type Route struct {
 }
 
 // Create will either create a new Route or update and existing one
-func (r *Route) Create(db sqlx.DB) (err error) {
+func (r *Route) Create(db *sqlx.DB) (err error) {
 	queryStmt := `
 		INSERT INTO route (project_id, user_id, method, path, destination, body, description)
 		VALUES ($1, $2, $3, $4, $5, $6, $7)
@@ -38,7 +38,7 @@ func (r *Route) Create(db sqlx.DB) (err error) {
 	return
 }
 
-func (r *Route) Update(db sqlx.DB) (err error) {
+func (r *Route) Update(db *sqlx.DB) (err error) {
 	queryStmt := `
 		UPDATE route
 		SET method = $1, path = $2, destination = $3, body = $4, description = $5
@@ -53,7 +53,7 @@ func (r *Route) Update(db sqlx.DB) (err error) {
 	return
 }
 
-func (r *Route) GetRoutesByProjectId(db sqlx.DB) ([]Route, error) {
+func (r *Route) GetRoutesByProjectId(db *sqlx.DB) ([]Route, error) {
 	routes := []Route{}
 
 	query := `
@@ -70,7 +70,7 @@ func (r *Route) GetRoutesByProjectId(db sqlx.DB) ([]Route, error) {
 	return routes, nil
 }
 
-func (r *Route) Delete(db sqlx.DB) (err error) {
+func (r *Route) Delete(db *sqlx.DB) (err error) {
 	_, err = db.Exec("DELETE FROM routes WHERE id=$1 AND user_id=$2", r.ID, r.UserID)
 
 	return

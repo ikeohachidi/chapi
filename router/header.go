@@ -25,14 +25,19 @@ func GetHeaders(c echo.Context) error {
 		return sendErrorResponse(c, http.StatusBadRequest, errResponseText)
 	}
 
-	header, err := app.Db.GetHeader(app.User.ID, uint(routeID))
+	header := model.Header{
+		UserID:  app.User.ID,
+		RouteID: uint(routeID),
+	}
+
+	headers, err := header.FetchAll(app.Conn.Db)
 
 	if err != nil {
 		log.Errorf("error retrieving header: %v", err)
 		return sendErrorResponse(c, http.StatusInternalServerError, errResponseText)
 	}
 
-	return sendOkResponse(c, header)
+	return sendOkResponse(c, headers)
 }
 
 func SaveHeader(c echo.Context) error {
@@ -55,11 +60,11 @@ func SaveHeader(c echo.Context) error {
 	header.UserID = app.User.ID
 
 	if c.Request().Method == "POST" {
-		err = app.Db.SaveHeader(&header)
+		err = header.Create(app.Conn.Db)
 	}
 
 	if c.Request().Method == "PUT" {
-		err = app.Db.UpdateHeader(header)
+		err = header.Update(app.Conn.Db)
 	}
 
 	if err != nil {
@@ -97,7 +102,7 @@ func DeleteHeader(c echo.Context) error {
 		RouteID: uint(routeID),
 	}
 
-	err = app.Db.DeleteHeader(header)
+	err = header.Delete(app.Conn.Db)
 	if err != nil {
 		log.Errorf("error deleting header: %v", err)
 		return sendErrorResponse(c, http.StatusBadRequest, errResponseText)

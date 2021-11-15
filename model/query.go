@@ -15,7 +15,7 @@ type Query struct {
 }
 
 // Create will either create a new query or update(really upsert) an existing one
-func (q *Query) Create(db sqlx.DB) (err error) {
+func (q *Query) Create(db *sqlx.DB) (err error) {
 	queryStmt := fmt.Sprintf(`
 		INSERT INTO "query" (route_id, user_id, "name", "value")
 		VALUES ($1, $2, pgp_sym_encrypt($3, '%[1]v'), pgp_sym_encrypt($4, '%[1]v'))
@@ -39,7 +39,7 @@ func (q *Query) Create(db sqlx.DB) (err error) {
 	return
 }
 
-func (q *Query) Update(db sqlx.DB) (err error) {
+func (q *Query) Update(db *sqlx.DB) (err error) {
 	queryStmt := fmt.Sprintf(`
 		UPDATE "query" 
 		SET "name" = pgp_sym_encrypt($1, '%[1]v'), "value" = pgp_sym_encrypt($2, '%[1]v')
@@ -51,7 +51,7 @@ func (q *Query) Update(db sqlx.DB) (err error) {
 	return
 }
 
-func (q *Query) GetRouteQueries(db sqlx.DB) ([]Query, error) {
+func (q *Query) GetRouteQueries(db *sqlx.DB) ([]Query, error) {
 	queries := []Query{}
 
 	stmt, err := db.Preparex(
@@ -72,7 +72,7 @@ func (q *Query) GetRouteQueries(db sqlx.DB) ([]Query, error) {
 	return queries, nil
 }
 
-func (q *Query) DeleteQuery(db sqlx.DB) (err error) {
+func (q *Query) Delete(db *sqlx.DB) (err error) {
 	stmt, err := db.Preparex("DELETE FROM query WHERE id = $1 AND route_id = $2 AND user_id = $3")
 	if err != nil {
 		return
