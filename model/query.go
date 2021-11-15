@@ -71,12 +71,15 @@ func (c *Conn) GetRouteQueries(routeID uint, userID uint) ([]Query, error) {
 }
 
 func (c *Conn) DeleteQuery(query Query) (err error) {
-	_, err = c.db.Exec(
-		"DELETE FROM query WHERE id = $1 AND route_id = $2 AND user_id = $3",
-		query.ID,
-		query.RouteID,
-		query.UserID,
-	)
+	stmt, err := c.db.Preparex("DELETE FROM query WHERE id = $1 AND route_id = $2 AND user_id = $3")
+	if err != nil {
+		return
+	}
+
+	_, err = stmt.Exec(query.ID, query.RouteID, query.UserID)
+	if err != nil {
+		return
+	}
 
 	return
 }
