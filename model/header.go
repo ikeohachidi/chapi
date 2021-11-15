@@ -3,9 +3,11 @@ package model
 import "fmt"
 
 type Header struct {
-	ID    uint   `json:"id,omitempty" db:"id"`
-	Name  string `json:"name" db:"name"`
-	Value string `json:"value" value:"value"`
+	ID      uint   `json:"id,omitempty" db:"id"`
+	RouteID uint   `json:"routeId" db:"route_id"`
+	UserID  uint   `json:"userId,omitempty" db:"user_id"`
+	Name    string `json:"name" db:"name"`
+	Value   string `json:"value" value:"value"`
 }
 
 func (c *Conn) SaveHeader(header *Header, userID, routeID uint) (err error) {
@@ -40,17 +42,14 @@ func (c *Conn) UpdateHeader(header Header, userID, routeID uint) (err error) {
 	return nil
 }
 
-func (c *Conn) DeleteHeader(headerName string, userID, routeID uint) (err error) {
-	stmt, err := c.db.Prepare(fmt.Sprintf(`
-		DELETE FROM header WHERE "name" = pgp_sym_encrypt($1, '%v') AND user_id = $2 AND route_id = $3
-		`, PG_CRYPT_KEY),
-	)
+func (c *Conn) DeleteHeader(header Header) (err error) {
+	stmt, err := c.db.Prepare(`DELETE FROM header WHERE id = $1 AND user_id = $2 AND route_id = $3`)
 
 	if err != nil {
 		return
 	}
 
-	_, err = stmt.Exec(headerName, userID, routeID)
+	_, err = stmt.Exec(header.ID, header.UserID, header.RouteID)
 	if err != nil {
 		return
 	}

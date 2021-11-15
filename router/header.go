@@ -78,19 +78,30 @@ func DeleteHeader(c echo.Context) error {
 	app := c.(App)
 	errResponseText := "couldn't delete header"
 
-	routeID, err := strconv.Atoi(c.QueryParam("route"))
+	id, err := strconv.Atoi(c.QueryParam("id"))
 	if err != nil {
 		log.Errorf("error converting route id query to int: %v", err)
 		return sendErrorResponse(c, http.StatusInternalServerError, errResponseText)
 	}
-	headerName := c.QueryParam("name")
+
+	routeID, err := strconv.Atoi(c.QueryParam("route_id"))
+	if err != nil {
+		log.Errorf("error converting route id query to int: %v", err)
+		return sendErrorResponse(c, http.StatusInternalServerError, errResponseText)
+	}
 
 	if app.User.ID == 0 || routeID == 0 {
 		log.Errorf("error getting user id or route id:\n userID: %v \n routeID: %v")
 		return sendErrorResponse(c, http.StatusBadRequest, errResponseText)
 	}
 
-	err = app.Db.DeleteHeader(headerName, app.User.ID, uint(routeID))
+	header := model.Header{
+		ID:      uint(id),
+		UserID:  app.User.ID,
+		RouteID: uint(routeID),
+	}
+
+	err = app.Db.DeleteHeader(header)
 	if err != nil {
 		log.Errorf("error deleting header: %v", err)
 		return sendErrorResponse(c, http.StatusBadRequest, errResponseText)
