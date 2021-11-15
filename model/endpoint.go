@@ -55,7 +55,7 @@ func (pe *PermOrigins) Scan(src interface{}) (err error) {
 }
 
 func (c *Conn) GetRouteRequestData(projectName, routePath string) (endpoint Endpoint, err error) {
-	stmt, err := c.db.Preparex(fmt.Sprintf(`
+	stmt, err := c.Db.Preparex(fmt.Sprintf(`
 		WITH project_values(id) AS
 		(
 			SELECT id 
