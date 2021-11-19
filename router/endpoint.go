@@ -3,8 +3,10 @@ package router
 import (
 	"fmt"
 	"io/ioutil"
+	"mime"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 	"text/template"
 
@@ -14,14 +16,40 @@ import (
 )
 
 func HandleFrontend(c echo.Context) error {
-	tmpl, err := template.New("index").ParseFiles("../frontend/index.html")
+	app := c.(App)
+
+	url := c.Request().URL.String()
+
+	var tmpl *template.Template
+	var err error
+
+	log.Printf("url: %v", url)
+	if url == "/" {
+		tmpl, err = template.ParseFS(app.Fs, "frontend/dist/index.html")
+	} else {
+		ext := filepath.Ext(url)
+		contentType := ""
+
+		switch ext {
+		case ".js":
+			contentType = "application/javascript"
+		case ".css":
+			contentType = "text/css"
+		default:
+			contentType = mime.TypeByExtension(ext)
+		}
+
+		c.Response().Header().Add("Content-Type", contentType)
+
+		tmpl, err = template.ParseFS(app.Fs, "frontend/dist"+url)
+	}
 	if err != nil {
-		log.Warnf("couldn't parse index.html file: %v", err)
+		log.Errorf("couldn't parse %v file: %v", url, err)
 	}
 
 	err = tmpl.Execute(c.Response().Writer, nil)
 	if err != nil {
-		log.Warnf("couldn't exectute template: %v", err)
+		log.Errorf("couldn't exectute template: %v", err)
 	}
 
 	return nil
@@ -120,7 +148,7 @@ func RunFrontendOrProxy(c echo.Context) error {
 
 	splitHost := strings.Split(host, ".")
 
-	if splitHost[0] == "chapi" {
+	if splitHost[0] == "chapi" || strings.Contains(os.Getenv("LOCAL_SERVER"), splitHost[0]) {
 		HandleFrontend(c)
 		return nil
 	}

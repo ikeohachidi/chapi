@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"net/http"
 	"os"
 
@@ -14,6 +15,9 @@ import (
 
 var (
 	LOCAL_FRONTEND = os.Getenv("LOCAL_FRONTEND")
+
+	//go:embed frontend/dist
+	FS embed.FS
 )
 
 func main() {
@@ -49,6 +53,7 @@ func main() {
 				Context: c,
 				Conn:    db,
 				User:    user,
+				Fs:      FS,
 			}
 
 			return next(cc)

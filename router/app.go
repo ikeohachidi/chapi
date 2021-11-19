@@ -1,6 +1,7 @@
 package router
 
 import (
+	"embed"
 	"net/http"
 	"os"
 
@@ -16,6 +17,7 @@ type App struct {
 	echo.Context
 	Conn model.Conn
 	User model.User
+	Fs   embed.FS
 }
 
 type Response struct {
