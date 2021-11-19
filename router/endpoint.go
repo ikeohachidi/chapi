@@ -36,7 +36,7 @@ func InitiateService(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, nil)
 	}
 
-	endpoint, err := app.Db.GetRouteRequestData(splitHost[0], c.Request().URL.Path)
+	endpoint, err := app.Conn.GetRouteRequestData(splitHost[0], c.Request().URL.Path)
 	if err != nil {
 		log.Errorf("error getting project: %v", err)
 		return c.JSON(http.StatusInternalServerError, nil)

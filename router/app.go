@@ -14,7 +14,7 @@ var store = goSession.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
 
 type App struct {
 	echo.Context
-	Db   model.Conn
+	Conn model.Conn
 	User model.User
 }
 

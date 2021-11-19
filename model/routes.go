@@ -2,6 +2,8 @@ package model
 
 import (
 	"time"
+
+	"github.com/jmoiron/sqlx"
 )
 
 type Route struct {
@@ -16,34 +18,34 @@ type Route struct {
 	CreatedAt   time.Time `json:"createdAt" db:"created_at"`
 }
 
-// SaveRoute will either create a new Route or update and existing one
-func (c *Conn) SaveRoute(route *Route) (err error) {
+// Create will either create a new Route or update and existing one
+func (r *Route) Create(db *sqlx.DB) (err error) {
 	queryStmt := `
 		INSERT INTO route (project_id, user_id, method, path, destination, body, description)
 		VALUES ($1, $2, $3, $4, $5, $6, $7)
 		RETURNING id
 	`
 
-	stmt, err := c.db.Preparex(queryStmt)
+	stmt, err := db.Preparex(queryStmt)
 	if err != nil {
 		return
 	}
 
-	row := stmt.QueryRow(route.ProjectID, route.UserID, route.Method, route.Path, route.Destination, route.Body, route.Description)
+	row := stmt.QueryRow(r.ProjectID, r.UserID, r.Method, r.Path, r.Destination, r.Body, r.Description)
 
-	err = row.Scan(&route.ID)
+	err = row.Scan(r.ID)
 
 	return
 }
 
-func (c *Conn) UpdateRoute(route Route) (err error) {
+func (r *Route) Update(db *sqlx.DB) (err error) {
 	queryStmt := `
 		UPDATE route
 		SET method = $1, path = $2, destination = $3, body = $4, description = $5
 		WHERE id = $6 AND user_id = $7
 	`
 
-	_, err = c.db.Exec(queryStmt, route.Method, route.Path, route.Destination, route.Body, route.Description, route.ID, route.UserID)
+	_, err = db.Exec(queryStmt, r.Method, r.Path, r.Destination, r.Body, r.Description, r.ID, r.UserID)
 	if err != nil {
 		return
 	}
@@ -51,7 +53,7 @@ func (c *Conn) UpdateRoute(route Route) (err error) {
 	return
 }
 
-func (c *Conn) GetRoutesByProjectId(projectID uint, userID uint) ([]Route, error) {
+func (r *Route) GetRoutesByProjectId(db *sqlx.DB) ([]Route, error) {
 	routes := []Route{}
 
 	query := `
@@ -59,7 +61,7 @@ func (c *Conn) GetRoutesByProjectId(projectID uint, userID uint) ([]Route, error
 		WHERE project_id = $1 AND user_id = $2
 	`
 
-	err := c.db.Select(&routes, query, projectID, userID)
+	err := db.Select(&routes, query, r.ProjectID, r.UserID)
 
 	if err != nil {
 		return nil, err
@@ -68,8 +70,8 @@ func (c *Conn) GetRoutesByProjectId(projectID uint, userID uint) ([]Route, error
 	return routes, nil
 }
 
-func (c *Conn) DeleteRoute(routeID uint, userID uint) (err error) {
-	_, err = c.db.Exec("DELETE FROM routes WHERE id=$1 AND user_id=$2", routeID, userID)
+func (r *Route) Delete(db *sqlx.DB) (err error) {
+	_, err = db.Exec("DELETE FROM routes WHERE id=$1 AND user_id=$2", r.ID, r.UserID)
 
 	return
 }

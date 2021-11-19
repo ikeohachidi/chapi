@@ -14,7 +14,9 @@ func SaveQuery(c echo.Context) error {
 	app := c.(App)
 	errResponseText := "couldn't save query"
 
-	var query model.Query
+	query := model.Query{
+		UserID: app.User.ID,
+	}
 
 	err := json.NewDecoder(c.Request().Body).Decode(&query)
 	if err != nil {
@@ -22,16 +24,14 @@ func SaveQuery(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
 	}
 
-	query.UserID = app.User.ID
-
 	HTTPMethod := c.Request().Method
 
 	if HTTPMethod == http.MethodPost {
-		err = app.Db.SaveQuery(&query)
+		err = query.Create(app.Conn.Db)
 	}
 
 	if HTTPMethod == http.MethodPut {
-		err = app.Db.UpdateQuery(query)
+		err = query.Update(app.Conn.Db)
 	}
 
 	if err != nil {
@@ -57,7 +57,12 @@ func GetQueries(c echo.Context) error {
 		return sendErrorResponse(c, http.StatusBadRequest, errResponseText)
 	}
 
-	queries, err := app.Db.GetRouteQueries(uint(routeID), app.User.ID)
+	query := model.Query{
+		RouteID: uint(routeID),
+		UserID:  app.User.ID,
+	}
+
+	queries, err := query.GetRouteQueries(app.Conn.Db)
 	if err != nil {
 		log.Errorf("error getting route queries from db: %v", err)
 		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
@@ -88,7 +93,7 @@ func DeleteQuery(c echo.Context) error {
 		RouteID: uint(routeID),
 	}
 
-	err = app.Db.DeleteQuery(query)
+	err = query.Delete(app.Conn.Db)
 	if err != nil {
 		log.Errorf("error running delete route query query: %v", err)
 		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})

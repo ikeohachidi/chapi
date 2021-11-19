@@ -2,6 +2,8 @@ package model
 
 import (
 	"time"
+
+	"github.com/jmoiron/sqlx"
 )
 
 type User struct {
@@ -10,8 +12,8 @@ type User struct {
 	CreatedAt time.Time `json:"created_at" db:"created_at"`
 }
 
-func (c *Conn) CreateUser(user User) (userID uint, err error) {
-	stmt, err := c.db.Preparex(`
+func (u *User) Create(db *sqlx.DB) (err error) {
+	stmt, err := db.Preparex(`
 		WITH e AS(
 			INSERT INTO "user" (email) 
 			VALUES ($1)
@@ -28,9 +30,9 @@ func (c *Conn) CreateUser(user User) (userID uint, err error) {
 		return
 	}
 
-	row := stmt.QueryRowx(user.Email)
+	row := stmt.QueryRowx(u.Email)
 
-	err = row.Scan(&userID)
+	err = row.Scan(u.ID)
 	if err != nil {
 		return
 	}
@@ -38,8 +40,8 @@ func (c *Conn) CreateUser(user User) (userID uint, err error) {
 	return
 }
 
-func (c *Conn) DeleteUser(userID uint) (err error) {
-	_, err = c.db.Exec("DELETE FROM user WHERE id=$1", userID)
+func (u *User) Delete(db *sqlx.DB) (err error) {
+	_, err = db.Exec("DELETE FROM user WHERE id=$1", u.ID)
 
 	return
 }

@@ -2,6 +2,8 @@ package model
 
 import (
 	"fmt"
+
+	"github.com/jmoiron/sqlx"
 )
 
 type Project struct {
@@ -11,8 +13,8 @@ type Project struct {
 	CreatedAt string `json:"createdAt" db:"created_at"`
 }
 
-func (conn *Conn) CreateProject(name string, userID uint) (projectID uint, err error) {
-	stmt, err := conn.db.Preparex(`
+func (p *Project) Create(db *sqlx.DB) (err error) {
+	stmt, err := db.Preparex(`
 		WITH e AS (
 			INSERT INTO project ("name", user_id) 
 			VALUES($1, $2) 
@@ -28,9 +30,9 @@ func (conn *Conn) CreateProject(name string, userID uint) (projectID uint, err e
 		return
 	}
 
-	row := stmt.QueryRowx(name, userID)
+	row := stmt.QueryRowx(p.Name, p.UserID)
 
-	err = row.Scan(&projectID)
+	err = row.Scan(p.ID)
 	if err != nil {
 		return
 	}
@@ -40,8 +42,8 @@ func (conn *Conn) CreateProject(name string, userID uint) (projectID uint, err e
 	return
 }
 
-func (conn *Conn) ProjectExists(name string) (exists bool, err error) {
-	stmt, err := conn.db.Preparex(`
+func (p *Project) ProjectExists(db *sqlx.DB) (exists bool, err error) {
+	stmt, err := db.Preparex(`
 		SELECT EXISTS (
 			SELECT *
 			FROM project
@@ -53,7 +55,7 @@ func (conn *Conn) ProjectExists(name string) (exists bool, err error) {
 		return
 	}
 
-	row := stmt.QueryRowx(name)
+	row := stmt.QueryRowx(p.Name)
 
 	err = row.Scan(&exists)
 
@@ -62,10 +64,10 @@ func (conn *Conn) ProjectExists(name string) (exists bool, err error) {
 	return
 }
 
-func (conn *Conn) ListProjects() ([]Project, error) {
+func ListProjects(db *sqlx.DB) ([]Project, error) {
 	projects := []Project{}
 
-	err := conn.db.Select(&projects, "SELECT * FROM project")
+	err := db.Select(&projects, "SELECT * FROM project")
 	if err != nil {
 		return nil, err
 	}
@@ -73,14 +75,14 @@ func (conn *Conn) ListProjects() ([]Project, error) {
 	return projects, nil
 }
 
-func (conn *Conn) GetProjectByName(name string) (project Project, err error) {
-	err = conn.db.Select(&project, fmt.Sprintf("SELECT * FROM project WHERE name = %v", name))
+func (p *Project) GetProjectByName(db *sqlx.DB) (project Project, err error) {
+	err = db.Select(&project, fmt.Sprintf("SELECT * FROM project WHERE name = %v", p.Name))
 
 	return
 }
 
 // TODO: can't figure out how to retrieve this properly
-func (conn *Conn) GetProjects(userID uint) ([]Project, error) {
+func (p *Project) GetProjects(db *sqlx.DB) ([]Project, error) {
 	projects := []Project{}
 
 	query := `
@@ -92,7 +94,7 @@ func (conn *Conn) GetProjects(userID uint) ([]Project, error) {
 		LEFT OUTER JOIN "query" on route.id = "query".route_id
 		WHERE project.user_id = $1 
 	`
-	err := conn.db.Select(&projects, query, userID)
+	err := db.Select(&projects, query, p.UserID)
 	if err != nil {
 		return nil, err
 	}
@@ -100,12 +102,12 @@ func (conn *Conn) GetProjects(userID uint) ([]Project, error) {
 	return projects, err
 }
 
-func (conn *Conn) GetUserProjects(userID uint) ([]Project, error) {
+func (p *Project) GetUserProjects(db *sqlx.DB) ([]Project, error) {
 	projects := []Project{}
 
 	query := `SELECT * FROM project WHERE user_id = $1`
 
-	err := conn.db.Select(&projects, query, userID)
+	err := db.Select(&projects, query, p.UserID)
 
 	if err != nil {
 		return nil, err
@@ -114,8 +116,8 @@ func (conn *Conn) GetUserProjects(userID uint) ([]Project, error) {
 	return projects, nil
 }
 
-func (conn *Conn) DeleteProject(projectID uint, userID uint) (err error) {
-	_, err = conn.db.Exec("DELETE FROM project WHERE id=$1 AND user_id=$2", projectID, userID)
+func (p *Project) DeleteProject(db *sqlx.DB) (err error) {
+	_, err = db.Exec("DELETE FROM project WHERE id=$1 AND user_id=$2", p.ID, p.UserID)
 
 	return
 }

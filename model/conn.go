@@ -10,7 +10,7 @@ import (
 )
 
 type Conn struct {
-	db *sqlx.DB
+	Db *sqlx.DB
 }
 
 var PG_CRYPT_KEY = os.Getenv("PG_CRYPT_KEY")
@@ -32,5 +32,5 @@ func Connect() Conn {
 
 	db.MustExec(schema)
 
-	return Conn{db: db}
+	return Conn{Db: db}
 }

@@ -23,11 +23,11 @@ func SavePermOrigins(c echo.Context) error {
 	}
 
 	if c.Request().Method == "POST" {
-		err = app.Db.CreatePermOrigin(&permOrigin)
+		err = permOrigin.Create(app.Conn.Db)
 	}
 
 	if c.Request().Method == "PUT" {
-		err = app.Db.UpdatePermOrigin(permOrigin)
+		err = permOrigin.Update(app.Conn.Db)
 	}
 
 	if err != nil {
@@ -48,7 +48,9 @@ func GetPermOrigins(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, nil)
 	}
 
-	permOrigins, err := app.Db.GetPermOrigins(uint(routeID))
+	permOrigin := model.PermOrigin{RouteID: uint(routeID)}
+
+	permOrigins, err := permOrigin.FetchAll(app.Conn.Db)
 	if err != nil {
 		log.Errorf("couldn't get permisson origins %v", err)
 		return c.JSON(http.StatusInternalServerError, nil)
@@ -77,7 +79,7 @@ func DeletePermOrigin(c echo.Context) error {
 		RouteID: uint(routeID),
 	}
 
-	err = app.Db.DeletePermOrigin(permOrigin)
+	err = permOrigin.Delete(app.Conn.Db)
 	if err != nil {
 		log.Errorf("couldn't delete permission origin %v", err)
 		c.JSON(http.StatusInternalServerError, nil)

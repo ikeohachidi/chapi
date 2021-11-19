@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/ikeohachidi/chapi-be/model"
 	"github.com/labstack/echo/v4"
 	log "github.com/sirupsen/logrus"
 )
@@ -23,7 +24,12 @@ func CreateProject(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
 	}
 
-	id, err := app.Db.CreateProject(name, app.User.ID)
+	project := model.Project{
+		Name:   name,
+		UserID: app.User.ID,
+	}
+
+	err := project.Create(app.Conn.Db)
 	if err != nil {
 		log.Errorf("error creating project: %v", err)
 		return c.JSON(http.StatusInternalServerError, Response{
@@ -32,15 +38,17 @@ func CreateProject(c echo.Context) error {
 		})
 	}
 
-	return c.JSON(http.StatusOK, Response{id, true})
+	return c.JSON(http.StatusOK, Response{project, true})
 }
 
 func DoesProjectExist(c echo.Context) error {
 	app := c.(App)
-	projectName := c.QueryParam("name")
+	project := model.Project{
+		Name: c.QueryParam("name"),
+	}
 	errResponseText := "couldn't get result"
 
-	projectExists, err := app.Db.ProjectExists(projectName)
+	projectExists, err := project.ProjectExists(app.Conn.Db)
 	if err != nil {
 		log.Errorf("error occured checking if project exists: %v", err)
 		return c.JSON(http.StatusInternalServerError, Response{errResponseText, false})
@@ -61,8 +69,11 @@ func GetUserProjects(c echo.Context) error {
 		log.Error("user id doesn't exist")
 		return c.JSON(http.StatusBadRequest, Response{"Couldn't get user projects", false})
 	}
+	project := model.Project{
+		UserID: app.User.ID,
+	}
 
-	projects, err := app.Db.GetUserProjects(app.User.ID)
+	projects, err := project.GetUserProjects(app.Conn.Db)
 	if err != nil {
 		log.Errorf("couldn't retrieve user projects: %v", err)
 		return c.JSON(http.StatusBadRequest, Response{"Couldn't get user projects", false})
@@ -74,7 +85,7 @@ func GetUserProjects(c echo.Context) error {
 func ListProjects(c echo.Context) error {
 	app := c.(App)
 
-	projects, err := app.Db.ListProjects()
+	projects, err := model.ListProjects(app.Conn.Db)
 	if err != nil {
 		return c.JSON(http.StatusBadGateway, Response{"Couldn't list projects", false})
 	}
@@ -98,7 +109,12 @@ func DeleteProject(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
 	}
 
-	err = app.Db.DeleteProject(uint(projectID), app.User.ID)
+	project := model.Project{
+		ID:     uint(projectID),
+		UserID: uint(app.User.ID),
+	}
+
+	err = project.DeleteProject(app.Conn.Db)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
 	}

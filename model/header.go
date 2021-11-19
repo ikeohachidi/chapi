@@ -1,6 +1,10 @@
 package model
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/jmoiron/sqlx"
+)
 
 type Header struct {
 	ID      uint   `json:"id,omitempty" db:"id"`
@@ -10,16 +14,16 @@ type Header struct {
 	Value   string `json:"value" value:"value"`
 }
 
-func (c *Conn) SaveHeader(header *Header) (err error) {
+func (h *Header) Create(db *sqlx.DB) (err error) {
 	stmt := fmt.Sprintf(`
 		INSERT INTO	header(user_id, route_id, name, value)
 		VALUES ($1, $2, pgp_sym_encrypt($3, '%[1]v'), pgp_sym_encrypt($4, '%[1]v'))
 		RETURNING id
 	`, PG_CRYPT_KEY)
 
-	row := c.db.QueryRow(stmt, header.UserID, header.RouteID, header.Name, header.Value)
+	row := db.QueryRow(stmt, h.UserID, h.RouteID, h.Name, h.Value)
 
-	err = row.Scan(&header.ID)
+	err = row.Scan(h.ID)
 	if err != nil {
 		return
 	}
@@ -27,14 +31,14 @@ func (c *Conn) SaveHeader(header *Header) (err error) {
 	return nil
 }
 
-func (c *Conn) UpdateHeader(header Header) (err error) {
+func (h *Header) Update(db *sqlx.DB) (err error) {
 	stmt := fmt.Sprintf(`
 		UPDATE header
 		SET name = pgp_sym_encrypt($1, '%[1]v'), value = pgp_sym_encrypt($2, '%[1]v')
 		WHERE id= $3 AND user_id = $4 AND route_id = $5
 	`, PG_CRYPT_KEY)
 
-	_, err = c.db.Exec(stmt, header.Name, header.Value, header.ID, header.UserID, header.RouteID)
+	_, err = db.Exec(stmt, h.Name, h.Value, h.ID, h.UserID, h.RouteID)
 	if err != nil {
 		return
 	}
@@ -42,14 +46,14 @@ func (c *Conn) UpdateHeader(header Header) (err error) {
 	return nil
 }
 
-func (c *Conn) DeleteHeader(header Header) (err error) {
-	stmt, err := c.db.Prepare(`DELETE FROM header WHERE id = $1 AND user_id = $2 AND route_id = $3`)
+func (h *Header) Delete(db *sqlx.DB) (err error) {
+	stmt, err := db.Prepare(`DELETE FROM header WHERE id = $1 AND user_id = $2 AND route_id = $3`)
 
 	if err != nil {
 		return
 	}
 
-	_, err = stmt.Exec(header.ID, header.UserID, header.RouteID)
+	_, err = stmt.Exec(h.ID, h.UserID, h.RouteID)
 	if err != nil {
 		return
 	}
@@ -57,7 +61,7 @@ func (c *Conn) DeleteHeader(header Header) (err error) {
 	return nil
 }
 
-func (c *Conn) GetHeader(userID, routeID uint) ([]Header, error) {
+func (h *Header) FetchAll(db *sqlx.DB) ([]Header, error) {
 	headers := []Header{}
 
 	stmt := fmt.Sprintf(`
@@ -66,7 +70,7 @@ func (c *Conn) GetHeader(userID, routeID uint) ([]Header, error) {
 		WHERE user_id = $1 AND route_id = $2
 	`, PG_CRYPT_KEY)
 
-	rows, err := c.db.Query(stmt, userID, routeID)
+	rows, err := db.Query(stmt, h.UserID, h.RouteID)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +80,7 @@ func (c *Conn) GetHeader(userID, routeID uint) ([]Header, error) {
 	for rows.Next() {
 		var header Header
 
-		err := rows.Scan(&header.ID, &header.Name, &header.Value)
+		err := rows.Scan(&h.ID, &h.Name, &h.Value)
 		if err != nil {
 			return nil, err
 		}

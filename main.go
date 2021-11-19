@@ -47,7 +47,7 @@ func main() {
 
 			cc := router.App{
 				Context: c,
-				Db:      db,
+				Conn:    db,
 				User:    user,
 			}
 
