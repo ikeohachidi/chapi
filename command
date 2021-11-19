@@ -2,6 +2,7 @@
 
 download_fe() {
 	if [ ! -e frontend ]; then
+		echo "FE doesn't exist, cloning";
 		git clone https://github.com/ikeohachidi/chapi-fe;
 		mv chapi-fe frontend;
 		npm --prefix frontend install;
@@ -9,11 +10,12 @@ download_fe() {
 }
 
 build_fe() {
-	if [! -e frontend/dit ]; then
+	if [ ! -e frontend/dist ]; then
+		echo "Starting FE build process";
 		npm --prefix frontend install;
 		npm --prefix frontend run build;
 	fi
 }
 
-download_fe();
-build_fe();
+download_fe;
+build_fe;
