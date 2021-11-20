@@ -2,14 +2,13 @@ package router
 
 import (
 	"fmt"
+	"io/fs"
 	"io/ioutil"
-	"mime"
 	"net/http"
 	"os"
-	"path/filepath"
 	"strings"
-	"text/template"
 
+	"github.com/ikeohachidi/chapi-be/lib"
 	"github.com/ikeohachidi/chapi-be/model"
 	"github.com/labstack/echo/v4"
 	log "github.com/sirupsen/logrus"
@@ -20,38 +19,26 @@ func HandleFrontend(c echo.Context) error {
 
 	url := c.Request().URL.String()
 
-	var tmpl *template.Template
+	var file fs.File
+	var fileData []byte
 	var err error
 
-	log.Printf("url: %v", url)
 	if url == "/" {
-		tmpl, err = template.ParseFS(app.Fs, "frontend/dist/index.html")
+		file, err = app.Fs.Open("frontend/dist/index.html")
+		fileData, _ = ioutil.ReadAll(file)
 	} else {
-		ext := filepath.Ext(url)
-		contentType := ""
+		c.Response().Header().Add("Content-Type", lib.DetectContentType(url))
 
-		switch ext {
-		case ".js":
-			contentType = "application/javascript"
-		case ".css":
-			contentType = "text/css"
-		default:
-			contentType = mime.TypeByExtension(ext)
-		}
-
-		c.Response().Header().Add("Content-Type", contentType)
-
-		tmpl, err = template.ParseFS(app.Fs, "frontend/dist"+url)
+		file, err = app.Fs.Open("frontend/dist" + url)
+		fileData, _ = ioutil.ReadAll(file)
 	}
+
 	if err != nil {
 		log.Errorf("couldn't parse %v file: %v", url, err)
+		return c.JSON(http.StatusInternalServerError, nil)
 	}
 
-	err = tmpl.Execute(c.Response().Writer, nil)
-	if err != nil {
-		log.Errorf("couldn't exectute template: %v", err)
-	}
-
+	c.Response().Writer.Write(fileData)
 	return nil
 }
 
