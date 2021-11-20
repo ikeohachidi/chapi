@@ -5,7 +5,13 @@
 				<h1 class="text-2xl md:text-4xl font-bold mb-10">A simple and painless proxy for your JAMSTACK application</h1>
 				<p class="mb-6">Chapi is a simple application aimed at the JAMSTACK or frontend developer who wants to access some api’s but doesn’t want to have to spin up an entire backend to hide API keys or doesn’t want to have to write complex cloud functions. It’s quick and easy to setup and get going!!</p>
 
-				<button @click="routeToDashboard">Get started</button>
+				<div class="flex">
+					<button @click="routeToDashboard">Get started</button>
+					<button class="github-btn" @click="routeToGithub">
+						<i class="ri-github-fill mr-2"></i>
+						Github	
+					</button>
+				</div>
 			</div>
 			<div class="hidden md:block">
 				<img src="@/assets/landing-page.svg" alt="Landing page" class="h-4/5 ml-auto">
@@ -42,7 +48,11 @@ import {Vue, Component} from 'vue-property-decorator';
 @Component
 export default class Home extends Vue {
 	private routeToDashboard() {
-		this.$router.push({ name: 'Dashboard' })
+		this.$router.push({ name: 'Dashboard' });
+	}
+
+	private routeToGithub() {
+		window.open('https://github.com/ikeohachidi/chapi', '_blank');
 	}
 }
 </script>
@@ -50,6 +60,11 @@ export default class Home extends Vue {
 <style lang="scss" scoped>
 p {
 	@apply text-gray-800 leading-7;
+}
+
+.github-btn {
+	@apply ml-4 text-gray-800 bg-gray-300 flex items-center;
+	@apply transition-all hover:bg-gray-400;
 }
 
 .reasons {
