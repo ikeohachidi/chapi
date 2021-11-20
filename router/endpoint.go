@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/ikeohachidi/chapi-be/lib"
@@ -23,7 +24,9 @@ func HandleFrontend(c echo.Context) error {
 	var fileData []byte
 	var err error
 
-	if url == "/" {
+	isFrontendPage := strings.Contains(url, "dashboard") && filepath.Ext(url) == ""
+
+	if url == "/" || isFrontendPage {
 		file, err = app.Fs.Open("frontend/dist/index.html")
 		fileData, _ = ioutil.ReadAll(file)
 	} else {
