@@ -4,7 +4,9 @@ usage() {
 cat <<HERE
 usage:
 	--build-fe				installs dependencies and builds frontend
+
 	--build-be				builds the backend
+
 	--build					builds entire app and stores binary in bin folder
 HERE
 }
