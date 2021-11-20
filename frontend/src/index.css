@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    font-family: 'ibm plex sans', sans-serif;
+    @apply text-gray-700;
+}
+
+input, 
+textarea,
+select {
+    @apply px-4 py-2 border border-gray-200 rounded-md text-sm bg-white;
+    @apply focus:outline-none focus:ring-1;
+}
+
+button {
+    @apply bg-indigo-700 text-white rounded-md px-5 py-2 text-sm;
+}
+
+button:hover {
+    @apply bg-indigo-800;
+}
+
+button:disabled {
+    @apply bg-indigo-300;
+}
+
+button.danger {
+    @apply bg-red-500;
+}
+
+.error-text {
+    @apply text-red-400;
+}
+
+.content-padding {
+    @apply px-16 md:px-36;
+}
+
+.section {
+    @apply grid grid-cols-3 gap-5 py-7 border-b border-gray-200;
+}
+
+.section:last-of-type {
+    @apply border-b-0 !important;
+}
+
+.section div:last-of-type {
+    @apply col-span-2;
+}
+
+.section-name {
+    @apply text-gray-900 font-medium text-base mb-2;
+}
+
+.section-description {
+    @apply text-gray-600 leading-5 text-sm;
+}
