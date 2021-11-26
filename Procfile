@@ -1,0 +1,1 @@
+web: ./command --build && bin/chapi
