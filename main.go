@@ -15,6 +15,7 @@ import (
 
 var (
 	LOCAL_FRONTEND = os.Getenv("LOCAL_FRONTEND")
+	PORT           = os.Getenv("PORT")
 
 	//go:embed frontend/dist
 	FS embed.FS
@@ -94,5 +95,5 @@ func main() {
 	e.PUT("/perm_origin", router.SavePermOrigins)
 	e.DELETE("/perm_origin", router.DeletePermOrigin)
 
-	e.Logger.Fatal(e.Start(":5000"))
+	e.Logger.Fatal(e.Start(":" + PORT))
 }

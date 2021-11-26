@@ -138,7 +138,7 @@ func RunFrontendOrProxy(c echo.Context) error {
 
 	splitHost := strings.Split(host, ".")
 
-	if splitHost[0] == "chapi" || strings.Contains(os.Getenv("LOCAL_SERVER"), splitHost[0]) {
+	if splitHost[0] == "chapi" || strings.Contains(SERVER_URL, splitHost[0]) {
 		HandleFrontend(c)
 		return nil
 	}

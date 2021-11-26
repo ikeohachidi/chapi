@@ -14,8 +14,7 @@ import (
 )
 
 var (
-	FRONTEND_URL = os.Getenv("LOCAL_FRONTEND")
-	SERVER_URL   = os.Getenv("LOCAL_SERVER")
+	SERVER_URL = "http://localhost:" + os.Getenv("PORT")
 )
 
 var githubConfig = oauth2.Config{
@@ -54,7 +53,7 @@ func OauthGithubRedirect(c echo.Context) error {
 
 	// Get the user information from the github api
 	req, err := http.NewRequest(http.MethodGet, "https://api.github.com/user", nil)
-	errRedirect(c, FRONTEND_URL, err)
+	errRedirect(c, SERVER_URL, err)
 
 	req.Header.Set("Authorization", "token "+token.AccessToken)
 
