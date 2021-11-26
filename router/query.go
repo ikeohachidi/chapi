@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/ikeohachidi/chapi-be/model"
+	"github.com/ikeohachidi/chapi/model"
 	"github.com/labstack/echo/v4"
 	log "github.com/sirupsen/logrus"
 )

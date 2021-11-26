@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/ikeohachidi/chapi-be/model"
+	"github.com/ikeohachidi/chapi/model"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/github"

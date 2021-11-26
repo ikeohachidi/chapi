@@ -6,8 +6,8 @@ import (
 	"os"
 
 	goSession "github.com/gorilla/sessions"
-	"github.com/ikeohachidi/chapi-be/model"
-	"github.com/ikeohachidi/chapi-be/router"
+	"github.com/ikeohachidi/chapi/model"
+	"github.com/ikeohachidi/chapi/router"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	log "github.com/sirupsen/logrus"
