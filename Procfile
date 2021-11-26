@@ -1,1 +1,1 @@
-web: ./command --build && bin/chapi
+web: go run main.go 
