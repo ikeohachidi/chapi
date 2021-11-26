@@ -23,7 +23,7 @@ func (u *User) Create(db *sqlx.DB) (err error) {
 
 		SELECT * FROM e
 		UNION 
-		sELECT id FROM "user" WHERE email=$1;
+		SELECT id FROM "user" WHERE email=$1;
 	`)
 
 	if err != nil {
@@ -32,7 +32,7 @@ func (u *User) Create(db *sqlx.DB) (err error) {
 
 	row := stmt.QueryRowx(u.Email)
 
-	err = row.Scan(u.ID)
+	err = row.Scan(&u.ID)
 	if err != nil {
 		return
 	}
