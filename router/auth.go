@@ -50,7 +50,7 @@ func OauthGithubRedirect(c echo.Context) error {
 
 	// Exchange the user information for an access_token
 	token, err := githubConfig.Exchange(context.Background(), code)
-	errRedirect(c, FRONTEND_URL, err)
+	errRedirect(c, SERVER_URL, err)
 
 	// Get the user information from the github api
 	req, err := http.NewRequest(http.MethodGet, "https://api.github.com/user", nil)
@@ -59,16 +59,16 @@ func OauthGithubRedirect(c echo.Context) error {
 	req.Header.Set("Authorization", "token "+token.AccessToken)
 
 	res, err := http.DefaultClient.Do(req)
-	errRedirect(c, FRONTEND_URL, err)
+	errRedirect(c, SERVER_URL, err)
 	defer res.Body.Close()
 
 	var user model.User
 
 	err = json.NewDecoder(res.Body).Decode(&user)
-	errRedirect(c, FRONTEND_URL, err)
+	errRedirect(c, SERVER_URL, err)
 
 	err = user.Create(cc.Conn.Db)
-	errRedirect(c, FRONTEND_URL, err)
+	errRedirect(c, SERVER_URL, err)
 
 	// set cookie
 	session, _ := store.Get(c.Request(), "chapi_session")
@@ -77,7 +77,7 @@ func OauthGithubRedirect(c echo.Context) error {
 	session.Values["access_token"] = token.AccessToken
 	session.Save(c.Request(), c.Response().Writer)
 
-	c.Redirect(http.StatusMovedPermanently, FRONTEND_URL)
+	c.Redirect(http.StatusMovedPermanently, SERVER_URL)
 
 	return nil
 }
