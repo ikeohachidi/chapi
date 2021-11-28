@@ -23,3 +23,9 @@ steps:
   - echo "Running build"
   - sh command --build
   - ./bin/chapi
+
+trigger:
+  branch:
+    - main
+  event:
+    - push
