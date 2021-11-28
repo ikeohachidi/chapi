@@ -27,5 +27,7 @@ steps:
 trigger:
   branch:
   - main
+  ref:
+  - refs/heads/main
   event:
   - push
