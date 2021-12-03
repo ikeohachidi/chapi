@@ -15,6 +15,6 @@ steps:
     port: 22
     script:
       - git clone https://github.com/ikeohachidi/chapi
-      - docker build -t chapi ~/chapi
-      - chmod +x ~/chapi/command
-      - ~/chapi/command --docker-run
+      - cd chapi
+      - chmod +x command
+      - ./command --docker-run
