@@ -14,8 +14,9 @@ steps:
       from_secret: password
     port: 22
     script:
-      - git clone https://github.com/ikeohachidi/chapi
+      - git -C chapi pull || git clone https://github.com/ikeohachidi/chapi
       - cd chapi
       - chmod +x command
       - echo $PSQL_PASS
       - ./command --docker-run
+      - docker logs chapi
