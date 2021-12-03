@@ -11,7 +11,10 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var store = goSession.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
+var (
+	CHAPI_SERVER_URL = os.Getenv("CHAPI_SERVER_URL")
+	store            = goSession.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
+)
 
 type App struct {
 	echo.Context
