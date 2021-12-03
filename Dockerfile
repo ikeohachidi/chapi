@@ -5,8 +5,6 @@ COPY . .
 
 # server port
 EXPOSE 5000
-# postgres port
-EXPOSE 5432
 
 RUN chmod +x command
 RUN /bin/sh command --build
