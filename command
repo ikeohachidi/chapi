@@ -61,8 +61,10 @@ docker_run() {
 	--env=LOCAL_FRONTEND=${LOCAL_FRONTEND} \
 	--env=PSQL_PASS=${PSQL_PASS} \
 	--env=PG_CRYPT_KEY=${PG_CRYPT_KEY} \
+	--env=CHAPI_SERVER_URL=${CHAPI_SERVER_URL} \
 	--env=CHAPI_GITHUB_SECRET=${CHAPI_GITHUB_SECRET} \
 	--env=CHAPI_GITHUB_ID=${CHAPI_GITHUB_ID} \
+	--env=OAUTH_STATE=${OAUTH_STATE} \
 	--publish=5000:5000 \
 	--network=host \
 	--restart=unless-stopped \
