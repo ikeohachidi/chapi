@@ -16,6 +16,5 @@ steps:
     script:
       - git -C chapi pull || git clone https://github.com/ikeohachidi/chapi
       - cd chapi
-      - source ~/.bashrc
       - chmod +x command
       - ./command --docker-run
