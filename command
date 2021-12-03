@@ -48,7 +48,7 @@ build_project() {
 }
 
 docker_build() {
-	docker image rm chapi;
+	docker image rm -f chapi;
 	docker build -t chapi .;
 }
 

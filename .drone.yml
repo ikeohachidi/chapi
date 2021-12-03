@@ -3,23 +3,10 @@ type: docker
 name: default
    
 steps:
-- name: build 
-  image: golang:alpine
-  network_mode: host
-  environment:
-    PORT:
-      from_secret: PORT
-    LOCAL_FRONTEND:
-      from_secret: LOCAL_FRONTEND
-    PSQL_PASS:
-      from_secret: PSQL_PASS
-    PG_CRYPT_KEY:
-      from_secret: PG_CRYPT_KEY
-    CHAPI_GITHUB_SECRET:
-      from_secret: CHAPI_GITHUB_SECRET
-    CHAPI_GITHUB_ID:
-      from_secret: CHAPI_GITHUB_ID
-  commands:
-  - echo "Running build"
-  - sh command --build
-  - ./bin/chapi
+- name: deployment
+  image: appleboy/drone-ssh
+  script:
+    - git clone https://github.com/ikeohachidi/chapi
+    - docker build -t chapi ~/chapi
+    - chmod +x ~/chapi/command
+    - ~/chapi/command --docker-run
