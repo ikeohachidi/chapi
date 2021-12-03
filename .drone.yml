@@ -17,4 +17,5 @@ steps:
       - git clone https://github.com/ikeohachidi/chapi
       - cd chapi
       - chmod +x command
+      - echo $PSQL_PASS
       - ./command --docker-run
