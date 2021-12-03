@@ -5,8 +5,16 @@ name: default
 steps:
 - name: deployment
   image: appleboy/drone-ssh
-  script:
-    - git clone https://github.com/ikeohachidi/chapi
-    - docker build -t chapi ~/chapi
-    - chmod +x ~/chapi/command
-    - ~/chapi/command --docker-run
+  settings:
+    host:  
+      from_secret: host
+    username: 
+      from_secret: username
+    password: 
+      from_secret: password
+    port: 22
+    script:
+      - git clone https://github.com/ikeohachidi/chapi
+      - docker build -t chapi ~/chapi
+      - chmod +x ~/chapi/command
+      - ~/chapi/command --docker-run
