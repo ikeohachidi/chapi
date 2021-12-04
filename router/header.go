@@ -72,7 +72,7 @@ func SaveHeader(c echo.Context) error {
 		return sendErrorResponse(c, http.StatusBadRequest, errResponseText)
 	}
 
-	return sendOkResponse(c, header.ID)
+	return sendOkResponse(c, header)
 }
 
 func DeleteHeader(c echo.Context) error {

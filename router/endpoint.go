@@ -103,7 +103,7 @@ func RunProxy(c echo.Context, endpoint model.Endpoint) error {
 func buildRequest(request *http.Request, endpoint model.Endpoint) (*http.Request, error) {
 	urlQuery := request.URL.RawQuery
 
-	destinationURL := fmt.Sprintf("%v%v?", endpoint.Destination, endpoint.Path)
+	destinationURL := endpoint.Destination + "?"
 
 	if urlQuery != "" || len(endpoint.Queries) != 0 {
 		destinationURL += urlQuery
@@ -138,7 +138,7 @@ func RunFrontendOrProxy(c echo.Context) error {
 
 	splitHost := strings.Split(host, ".")
 
-	if splitHost[0] == "chapi" || strings.Contains(CHAPI_SERVER_URL, splitHost[0]) {
+	if strings.Contains(CHAPI_SERVER_URL, splitHost[0]) {
 		HandleFrontend(c)
 		return nil
 	}

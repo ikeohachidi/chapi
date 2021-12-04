@@ -33,7 +33,7 @@ func (r *Route) Create(db *sqlx.DB) (err error) {
 
 	row := stmt.QueryRow(r.ProjectID, r.UserID, r.Method, r.Path, r.Destination, r.Body, r.Description)
 
-	err = row.Scan(r.ID)
+	err = row.Scan(&r.ID)
 
 	return
 }

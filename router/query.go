@@ -39,7 +39,7 @@ func SaveQuery(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
 	}
 
-	return sendOkResponse(c, query.ID)
+	return sendOkResponse(c, query)
 }
 
 func GetQueries(c echo.Context) error {

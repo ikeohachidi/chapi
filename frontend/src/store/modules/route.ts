@@ -52,12 +52,9 @@ const route = {
                         credentials: 'include'
                     })
                     .then((res) => res.json())
-                    .then((body: Response<number>) => {
+                    .then((body: Response<Route>) => {
                         if (body.successful) {
-                            context.commit('addRoute', { 
-                                ...new Route(),
-                                ...route,
-                            })
+                            context.commit('addRoute', body.data);
                             resolve()
                         } else {
                             reject()

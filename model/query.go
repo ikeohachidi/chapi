@@ -34,7 +34,7 @@ func (q *Query) Create(db *sqlx.DB) (err error) {
 		return
 	}
 
-	err = row.Scan(q.ID)
+	err = row.Scan(&q.ID)
 
 	return
 }

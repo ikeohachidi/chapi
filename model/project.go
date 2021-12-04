@@ -32,7 +32,7 @@ func (p *Project) Create(db *sqlx.DB) (err error) {
 
 	row := stmt.QueryRowx(p.Name, p.UserID)
 
-	err = row.Scan(p.ID)
+	err = row.Scan(&p.ID)
 	if err != nil {
 		return
 	}

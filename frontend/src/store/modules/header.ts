@@ -64,7 +64,7 @@ const header = {
                 .catch(error => reject(error))
             })
         },
-        saveHeader(context: HeaderContext, header: Header): Promise<number> {
+        saveHeader(context: HeaderContext, header: Header): Promise<Header> {
             return new Promise((resolve, reject) => {
                 fetch(`${API}/header`, { 
                         method: 'POST',
@@ -72,13 +72,10 @@ const header = {
                         body: JSON.stringify(header)
                     })
                     .then((res) => res.json())
-                    .then((body: Response<number>) => {
-                        context.commit('addHeader', {
-                            ...header,
-                            id: body.data
-                        })
+                    .then((body: Response<Header>) => {
+                        context.commit('addHeader', body.data);
 
-                        resolve(body.data)
+                        resolve(body.data);
                     })
                     .catch((error) => {
                         reject(error)

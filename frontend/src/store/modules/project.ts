@@ -76,12 +76,8 @@ const project = {
                         credentials: 'include'
                     })
                     .then((res) => res.json())
-                    .then((body: Response<string>) => {
-                        context.commit('addProject', {
-                            id: body.data,
-                            name: project.name,
-                            userId: project.userId
-                        })
+                    .then((body: Response<Project>) => {
+                        context.commit('addProject', body.data);
                         resolve()
                     })
                     .catch((error) => {
@@ -92,7 +88,8 @@ const project = {
         deleteProject(context: ProjectContext, projectId: number): Promise<void> {
             return new Promise((resolve, reject) => {
                 fetch(`${API}/project/${projectId}`, {
-                        method: 'DELETE'
+                        method: 'DELETE',
+                        credentials: 'include'
                     })
                     .then((res) => res.json())
                     .then(() => {

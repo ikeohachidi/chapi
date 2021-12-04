@@ -23,7 +23,7 @@ func (h *Header) Create(db *sqlx.DB) (err error) {
 
 	row := db.QueryRow(stmt, h.UserID, h.RouteID, h.Name, h.Value)
 
-	err = row.Scan(h.ID)
+	err = row.Scan(&h.ID)
 	if err != nil {
 		return
 	}

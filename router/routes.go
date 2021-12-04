@@ -40,7 +40,7 @@ func SaveRoute(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
 	}
 
-	return c.JSON(http.StatusOK, Response{route.ID, true})
+	return c.JSON(http.StatusOK, Response{route, true})
 }
 
 func GetProjectRoutes(c echo.Context) error {
