@@ -7,6 +7,7 @@ import { Response, TestResponse } from '@/types/HTTP';
 type RouteContext = ActionContext<RouteState, StoreState>;
 
 const API = process.env.VUE_APP_SERVER;
+const API_URL = process.env.VUE_APP_SITE_URL;
 
 export type RouteState = {
     routes: Route[];
@@ -136,7 +137,7 @@ const route = {
                 }
                 fetch(serverURL, {
                     method: 'GET',
-                    mode: 'cors',
+                    mode: API_URL.includes("localhost:") ? 'cors' : 'same-origin',
                 })
                 .then(response => {
                     if (!response.ok) {

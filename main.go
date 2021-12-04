@@ -14,8 +14,7 @@ import (
 )
 
 var (
-	LOCAL_FRONTEND = os.Getenv("LOCAL_FRONTEND")
-	PORT           = os.Getenv("PORT")
+	PORT = os.Getenv("PORT")
 
 	//go:embed frontend/dist
 	FS embed.FS
@@ -28,7 +27,7 @@ func main() {
 	store := goSession.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
 
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins:     []string{LOCAL_FRONTEND},
+		AllowOrigins:     []string{"*"},
 		AllowCredentials: true,
 	}))
 
