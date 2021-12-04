@@ -138,12 +138,10 @@ func RunFrontendOrProxy(c echo.Context) error {
 
 	splitHost := strings.Split(host, ".")
 
-	if strings.Contains(CHAPI_SERVER_URL, splitHost[0]) || c.Request().RequestURI == "/" {
+	if strings.Contains(splitHost[0], "localhost:") {
 		HandleFrontend(c)
 		return nil
 	}
-
-	log.Printf("server: %v, host: %v, reqURI: %v, reqStr: %v, ori: %v", CHAPI_SERVER_URL, host, c.Request().RequestURI, c.Request().URL.String(), c.Request().Header.Get("Origin"))
 
 	InitiateService(c)
 
