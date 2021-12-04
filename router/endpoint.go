@@ -142,7 +142,8 @@ func RunFrontendOrProxy(c echo.Context) error {
 		HandleFrontend(c)
 		return nil
 	}
-	log.Printf("server: %v, host: %v, split: %v", CHAPI_SERVER_URL, host, c.Request().RequestURI)
+
+	log.Print(CHAPI_SERVER_URL, host, c.Request().RequestURI, c.Request().URL.String(), c.Request().Header.Get("Origin"))
 
 	InitiateService(c)
 
