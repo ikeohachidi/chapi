@@ -2,7 +2,6 @@ package main
 
 import (
 	"embed"
-	"net/http"
 	"os"
 
 	goSession "github.com/gorilla/sessions"
@@ -37,11 +36,7 @@ func main() {
 			var user model.User
 
 			if err != nil {
-				log.Errorf("couldn't get chapi session")
-				return c.JSON(http.StatusBadRequest, router.Response{
-					Data:       "Couldn't get chapi session",
-					Successful: false,
-				})
+				log.Errorf("error getting chapi session: %v", err)
 			}
 
 			if _, ok := session.Values["access_token"]; ok {
