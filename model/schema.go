@@ -1,9 +1,6 @@
 package model
 
 var schema = `
-DROP TYPE IF EXISTS request_type CASCADE; 
-CREATE TYPE request_type AS ENUM ('GET', 'POST', 'PUT', 'DELETE');
-
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 CREATE TABLE IF NOT EXISTS "user" (
@@ -23,7 +20,7 @@ CREATE TABLE IF NOT EXISTS route (
 	id  			SERIAL PRIMARY KEY,
 	project_id		INTEGER NOT NULL REFERENCES project(id) ON DELETE CASCADE,
 	user_id 		INTEGER REFERENCES "user"(id) ON DELETE CASCADE,
-	method 			request_type DEFAULT 'GET',
+	method 			TEXT NOT NULL DEFAULT 'GET',
 	path 			TEXT NOT NULL,
 	description 	TEXT NOT NULL DEFAULT '',
 	destination 	TEXT NOT NULL,
