@@ -135,11 +135,14 @@ func buildRequest(request *http.Request, endpoint model.Endpoint) (*http.Request
 
 func RunFrontendOrProxy(c echo.Context) error {
 	host := c.Request().Host
+	referer := c.Request().Header.Get("Referer")
 
 	splitHost := strings.Split(host, ".")
 
-	log.Printf("Referer %v", c.Request().Header.Get("Referer"))
+	log.Printf("Referer %v", referer)
 	log.Printf("Host: %v", host)
+	log.Printf("Host header: %v", c.Request().Header.Get("Host"))
+	log.Printf("authority: %v", c.Request().Header.Get(":authority"))
 
 	if strings.Contains(splitHost[0], "localhost:") {
 		HandleFrontend(c)
