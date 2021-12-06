@@ -140,15 +140,13 @@ func RunFrontendOrProxy(c echo.Context) error {
 	splitHost := strings.Split(host, ".")
 	splitReferer := strings.Split(referer, ".")
 
-	log.Printf("Referer %v", referer)
-	log.Printf("Host: %v", host)
-	log.Printf("Host header: %v", c.Request().Header.Get("Host"))
-	log.Printf("authority: %v", c.Request().Header.Get(":authority"))
+	log.Printf("Referer %v, %v", referer, splitReferer)
 
 	if strings.Contains(splitHost[0], "localhost:") || strings.Contains(splitReferer[0], "www") || strings.Contains(splitReferer[0], "chapi") {
 		HandleFrontend(c)
 		return nil
 	}
+	log.Println("initiating service")
 
 	InitiateService(c)
 
