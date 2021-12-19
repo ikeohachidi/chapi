@@ -10,6 +10,7 @@
             :enableOK="isInputValid"
         >
             <input type="text" placeholder="chapi.com external api's" class="w-full" v-model="newProjectName" @input="isProjectCreated">
+            <p class="text-sm error-text" v-if="isProjectNameProtected">{{ newProjectName }} can't be a project name</p>
             <p class="text-sm error-text" v-if="projectAlreadyExists">Name isn't available</p>
             <p class="text-sm error-text" v-if="newProjectName.length < 3">Name should have at least 3 letters</p>
         </modal>
@@ -73,6 +74,11 @@ export default class ProjectNav extends Vue {
     private projectSearchText = '';
 
     private projectAlreadyExists = false;
+
+    private protectedProjectNames: string[] = ['www', 'chapi', 'localhost'];
+    get isProjectNameProtected(): boolean {
+        return this.protectedProjectNames.includes(this.newProjectName.toLowerCase());
+    }
 
     get isInputValid(): boolean {
         return this.newProjectName.length >= 3 && !this.projectAlreadyExists;
