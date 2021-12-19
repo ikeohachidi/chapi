@@ -15,6 +15,11 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+var (
+	ENVIRONMENT     = os.Getenv("ENV")
+	protectedRoutes = []string{"localhost", "www", "chapi"}
+)
+
 func HandleFrontend(c echo.Context) error {
 	app := c.(App)
 
@@ -133,24 +138,46 @@ func buildRequest(request *http.Request, endpoint model.Endpoint) (*http.Request
 	return req, nil
 }
 
-func RunFrontendOrProxy(c echo.Context) error {
-	// host := c.Request().Host
-	referer := c.Request().Header.Get("Referer")
+func getSubdomain(url string) string {
+	var domain string
 
-	// splitHost := strings.Split(host, ".")
-	splitReferer := strings.Split(referer, ".")
-
-	log.Printf("Referer %v, %v", referer, splitReferer)
-
-	if referer == "" ||
-		strings.Contains(splitReferer[0], "localhost") ||
-		strings.Contains(splitReferer[0], "www") ||
-		strings.Contains(splitReferer[0], "chapi") {
-
-		HandleFrontend(c)
-		return nil
+	if strings.Contains(url, "http://") {
+		url = url[7:]
 	}
-	log.Println("initiating service")
+	if strings.Contains(url, "https://") {
+		url = url[8:]
+	}
+
+	domain = strings.Split(url, ".")[0]
+
+	return domain
+}
+
+func isDomainProtected(domain string) bool {
+	for _, route := range protectedRoutes {
+		if strings.Contains(domain, route) {
+			return true
+		}
+	}
+	return false
+}
+
+func RunFrontendOrProxy(c echo.Context) error {
+	hostDomain := getSubdomain(c.Request().Host)
+	refererDomain := getSubdomain(c.Request().Referer())
+
+	if ENVIRONMENT == "development" {
+		if hostDomain != "" && isDomainProtected(getSubdomain(hostDomain)) {
+			HandleFrontend((c))
+			return nil
+		}
+	} else if ENVIRONMENT == "production" {
+		if refererDomain != "" && isDomainProtected(getSubdomain(refererDomain)) {
+			HandleFrontend((c))
+			return nil
+		}
+	}
+	log.Println("refDomain: %v, referer: %v", refererDomain, c.Request().Referer())
 
 	InitiateService(c)
 
