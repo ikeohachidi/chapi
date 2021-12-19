@@ -143,6 +143,7 @@ func RunFrontendOrProxy(c echo.Context) error {
 	log.Printf("Referer %v, %v", referer, splitReferer)
 
 	if referer == "" ||
+		strings.Contains(splitReferer[0], "localhost") ||
 		strings.Contains(splitReferer[0], "www") ||
 		strings.Contains(splitReferer[0], "chapi") {
 
