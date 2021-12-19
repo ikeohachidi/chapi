@@ -172,7 +172,7 @@ func RunFrontendOrProxy(c echo.Context) error {
 			return nil
 		}
 	} else if ENVIRONMENT == "production" {
-		if refererDomain != "" && isDomainProtected(getSubdomain(refererDomain)) {
+		if refererDomain == "" && isDomainProtected(getSubdomain(refererDomain)) {
 			HandleFrontend((c))
 			return nil
 		}
