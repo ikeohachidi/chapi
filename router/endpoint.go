@@ -50,16 +50,12 @@ func HandleFrontend(c echo.Context) error {
 	return nil
 }
 
-func InitiateService(c echo.Context) error {
+func InitiateService(c echo.Context, domain string) error {
 	app := c.(App)
 	origin := c.Request().Header.Get("Origin")
+	fmt.Printf("Initiating service: %v from %v", domain, origin)
 
-	splitHost := strings.Split(c.Request().Host, ".")
-	if splitHost[0] == "chapi" || len(splitHost) == 0 {
-		return c.JSON(http.StatusBadRequest, nil)
-	}
-
-	endpoint, err := app.Conn.GetRouteRequestData(splitHost[0], c.Request().URL.Path)
+	endpoint, err := app.Conn.GetRouteRequestData(domain, c.Request().URL.Path)
 	if err != nil {
 		log.Errorf("error getting project: %v", err)
 		return c.JSON(http.StatusInternalServerError, nil)
@@ -165,21 +161,26 @@ func isDomainProtected(domain string) bool {
 func RunFrontendOrProxy(c echo.Context) error {
 	hostDomain := getSubdomain(c.Request().Host)
 	refererDomain := getSubdomain(c.Request().Referer())
+	var domain string
 
 	if ENVIRONMENT == "development" {
-		if hostDomain != "" && isDomainProtected(getSubdomain(hostDomain)) {
+		domain = getSubdomain(hostDomain)
+		if hostDomain != "" && isDomainProtected(domain) {
 			HandleFrontend((c))
 			return nil
 		}
 	} else if ENVIRONMENT == "production" {
-		if refererDomain == "" || isDomainProtected(getSubdomain(refererDomain)) {
+		domain = getSubdomain(refererDomain)
+		if refererDomain == "" || isDomainProtected(domain) {
 			HandleFrontend((c))
 			return nil
 		}
 	}
-	log.Println("refDomain: %v, referer: %v", refererDomain, c.Request().Referer())
+	log.Printf("refDomain: %v", c.Request().Referer())
 
-	InitiateService(c)
+	if domain != "" {
+		InitiateService(c, domain)
+	}
 
 	return nil
 }
