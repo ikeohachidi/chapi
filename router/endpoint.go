@@ -171,7 +171,7 @@ func RunFrontendOrProxy(c echo.Context) error {
 		}
 	} else if ENVIRONMENT == "production" {
 		domain = getSubdomain(refererDomain)
-		log.Printf("domain %v", domain)
+		log.Printf("ref %v\nsubdomain: %v\nhost: %v\nhostsub: %v\n", domain, refererDomain, getSubdomain(hostDomain), c.Request().Host)
 		if refererDomain == "" || isDomainProtected(domain) {
 			HandleFrontend((c))
 			return nil
