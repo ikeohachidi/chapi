@@ -104,7 +104,7 @@ export default class RouteView extends Vue {
 
     get serverURL(): string {
         if (this.route) {
-            return `http://${this.routeProject.name}.${this.siteURL}${this.route.path}`;
+            return `https://${this.routeProject.name}.${this.siteURL}${this.route.path}`;
         }
         return '';
     }
