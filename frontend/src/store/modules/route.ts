@@ -137,7 +137,7 @@ const route = {
                 }
                 fetch(serverURL, {
                     method: 'GET',
-                    mode: API_URL.includes("localhost:") ? 'cors' : 'same-origin',
+                    mode: 'cors',
                 })
                 .then(response => {
                     if (!response.ok) {
