@@ -164,13 +164,13 @@ func RunFrontendOrProxy(c echo.Context) error {
 	var domain string
 
 	if ENVIRONMENT == "development" {
-		domain = getSubdomain(hostDomain)
+		domain = hostDomain
 		if hostDomain != "" && isDomainProtected(domain) {
 			HandleFrontend((c))
 			return nil
 		}
 	} else if ENVIRONMENT == "production" {
-		domain = getSubdomain(refererDomain)
+		domain = refererDomain
 		log.Printf("ref %v\nsubdomain: %v\nhost: %v\nhostsub: %v\n", domain, refererDomain, getSubdomain(hostDomain), c.Request().Host)
 		if refererDomain == "" || isDomainProtected(domain) {
 			HandleFrontend((c))
