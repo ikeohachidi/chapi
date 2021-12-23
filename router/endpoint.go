@@ -160,28 +160,15 @@ func isDomainProtected(domain string) bool {
 
 func RunFrontendOrProxy(c echo.Context) error {
 	hostDomain := getSubdomain(c.Request().Host)
-	refererDomain := getSubdomain(c.Request().Referer())
-	var domain string
 
-	if ENVIRONMENT == "development" {
-		domain = hostDomain
-		if hostDomain != "" && isDomainProtected(domain) {
-			HandleFrontend((c))
-			return nil
-		}
-	} else if ENVIRONMENT == "production" {
-		domain = refererDomain
-		log.Printf("ref %v\nsubdomain: %v\nhost: %v\nhostsub: %v\n", domain, refererDomain, getSubdomain(hostDomain), c.Request().Host)
-		if refererDomain == "" || isDomainProtected(domain) {
-			HandleFrontend((c))
-			return nil
-		}
-	}
-	log.Printf("refDomain: %v", c.Request().Referer())
+	log.Printf(" Host: %v", hostDomain)
 
-	if domain != "" {
-		InitiateService(c, domain)
+	if hostDomain != "" && isDomainProtected(hostDomain) {
+		HandleFrontend((c))
+		return nil
 	}
+
+	InitiateService(c, hostDomain)
 
 	return nil
 }
