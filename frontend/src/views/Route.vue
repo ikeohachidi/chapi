@@ -117,7 +117,7 @@ export default class RouteView extends Vue {
     }
 
     private deleteRoute() {
-        if (!this.route) return;
+        if (!this.route || !this.route.id) return;
         deleteRoute(this.$store, this.route.id)
             .then(() => {
                 this.$toast.success('Route deleted successfully');
