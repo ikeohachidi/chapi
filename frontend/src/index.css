@@ -30,6 +30,10 @@ button.danger {
     @apply bg-red-500;
 }
 
+button.danger:hover {
+    @apply bg-red-600;
+}
+
 .error-text {
     @apply text-red-400;
 }
