@@ -7,12 +7,12 @@
             v-if="showNewProjectModal"
             @close="showNewProjectModal = false"
             @action="createNewProject"
-            :enableOK="isInputValid"
+            :enableOK="projectValidationErrors.length === 0"
         >
             <input type="text" placeholder="chapi.com external api's" class="w-full" v-model="newProjectName" @input="isProjectCreated">
-            <p class="text-sm error-text" v-if="isProjectNameProtected">{{ newProjectName }} can't be a project name</p>
-            <p class="text-sm error-text" v-if="projectAlreadyExists">Name isn't available</p>
-            <p class="text-sm error-text" v-if="newProjectName.length < 3">Name should have at least 3 letters</p>
+            <template v-if="projectValidationErrors.length > 0">
+                <p class="text-sm error-text" v-for="(error, index) in projectValidationErrors" :key="index">{{ error }}</p>
+            </template>
         </modal>
 
         <div class="px-6 py-8 border-b border-gray-200">
@@ -76,12 +76,15 @@ export default class ProjectNav extends Vue {
     private projectAlreadyExists = false;
 
     private protectedProjectNames: string[] = ['www', 'chapi', 'localhost'];
-    get isProjectNameProtected(): boolean {
-        return this.protectedProjectNames.includes(this.newProjectName.toLowerCase());
-    }
+    get projectValidationErrors(): string[] {
+        let errors = [];
 
-    get isInputValid(): boolean {
-        return this.newProjectName.length >= 3 && !this.projectAlreadyExists;
+        if (this.newProjectName.length < 3) errors.push('Project name must have at least 3 characters');
+        if (this.projectAlreadyExists) errors.push('Project already exists');
+        if (this.protectedProjectNames.includes(this.newProjectName.toLowerCase())) errors.push(`${this.newProjectName} is not allowed as a valid project name`);
+        if (/^[A-Za-z0-9-]*$/.test(this.newProjectName) === false) errors.push('A project name can only have letters, numbers and hyphen\n');
+
+        return errors
     }
 
     get user(): User | null {
@@ -113,7 +116,7 @@ export default class ProjectNav extends Vue {
     }
 
     private createNewProject() {
-        if (!this.isInputValid) return;
+        if (this.projectValidationErrors.length > 0) return;
 
         if (this.user) {
             createProject(this.$store, {
