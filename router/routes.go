@@ -68,7 +68,7 @@ func GetProjectRoutes(c echo.Context) error {
 
 func DeleteRoute(c echo.Context) error {
 	app := c.(App)
-	routeID, _ := strconv.Atoi(c.Param("id"))
+	routeID, _ := strconv.Atoi(c.QueryParam("id"))
 	errResponseText := "couldn't delete route"
 
 	if routeID == 0 {
@@ -85,5 +85,5 @@ func DeleteRoute(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, Response{errResponseText, false})
 	}
 
-	return nil
+	return c.JSON(http.StatusOK, Response{nil, true})
 }

@@ -71,7 +71,7 @@ func (r *Route) GetRoutesByProjectId(db *sqlx.DB) ([]Route, error) {
 }
 
 func (r *Route) Delete(db *sqlx.DB) (err error) {
-	_, err = db.Exec("DELETE FROM routes WHERE id=$1 AND user_id=$2", r.ID, r.UserID)
+	_, err = db.Exec("DELETE FROM route WHERE id=$1 AND user_id=$2", r.ID, r.UserID)
 
 	return
 }
