@@ -18,6 +18,8 @@
             <small class="block text-right" v-if="correctedPath !== path">Your path will be: 
                 <span class="text-green-600">{{ correctedPath }}</span>
             </small>
+            <input type="text" placeholder="Destination URL" v-model="destination" class="w-full mt-5">
+            <p class="text-sm error-text" v-if="validationErrors.destination">{{ validationErrors.destination }}</p>
             <textarea rows="8" class="mt-5 resize-none w-full" v-model="description" placeholder="Route Description"></textarea>
         </modal>
         <div class="w-full rounded-lg border-dashed border-4 flex items-center justify-center" @click="showNewRouteModal = true">
@@ -46,6 +48,14 @@ import { HTTPMethod } from '@/types/HTTP';
 import { createRoute, fetchProjectRoutes, getRoutes } from '@/store/modules/route';
 import { getProjectById } from '@/store/modules/project';
 
+type ErrorMessage = string;
+
+type ValidatoinErrors = {
+    errors: {[input: string]: ErrorMessage},
+    errorsMessage: string;
+    hasErrors: boolean;
+}
+
 @Component({
     components: {
         RouteCard,
@@ -58,6 +68,7 @@ export default class RouteList extends Vue {
         return this.path.replace(/\s+/g, '-')
     }
     private description = '' ;
+    private destination = '';
     private method: HTTPMethod = HTTPMethod.GET;
     private showNewRouteModal = false;
 
@@ -83,18 +94,47 @@ export default class RouteList extends Vue {
         this.path = '';
         this.description = '';
         this.method = HTTPMethod.GET;
+        this.destination = '';
     }
 
-    private createNewRoute() {
+    private validationErrors(): ValidatoinErrors {
+        const errors: {[input: string]: ErrorMessage} = {};
+        if (this.destination === '') errors['destination'] = "A destination URL is required";
+
+        const errorsMessage = Object.keys(errors).reduce((acc: string, errorInput) => {
+            return acc + `${errors[errorInput]}\n`
+        }, '')
+
+        return {
+            errors,
+            errorsMessage,
+            hasErrors: Object.keys(errors).length > 0
+        };
+    }
+
+    private createNewRoute(): void {
+        const { errorsMessage, hasErrors } = this.validationErrors();
+
+        if (hasErrors) {
+            this.$toast.error(errorsMessage)
+            return
+        }
+
         const route: CreateRouteRequest = {
             projectId: this.projectId,
             path: this.correctedPath,
             method: this.method,
-            description: this.description
+            description: this.description,
+            destination: this.destination
         }
 
-        // TODO: handle returned promise
-        createRoute(this.$store, route);
+        createRoute(this.$store, route)
+            .then(() => {
+                this.$toast.success('Route Created Successfully');
+            })
+            .catch(() => {
+                this.$toast.error('Error creating route');
+            })
         this.showNewRouteModal = false;
         this.resetInputs();
     }

@@ -33,6 +33,7 @@ export type CreateRouteRequest = {
     path: string;
     method: string;
     description: string;
+    destination: string;
 } 
 
 export type AuthorizedURL = {
