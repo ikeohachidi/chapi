@@ -60,7 +60,7 @@ export default class Security extends Vue {
         return getPermOrigins(this.$store)[this.route.id!] || [];
     }
     @Watch('_routeOrigins', { deep: true })
-    on_RouteOriginsChange(value: PermOrigin[]) {
+    on_RouteOriginsChange(value: PermOrigin[]): void {
         this.routeOrigins = JSON.parse(JSON.stringify(value));
     }
 
@@ -102,7 +102,7 @@ export default class Security extends Vue {
         deletePermOrigin(this.$store, permOrigin)
     }
     
-    mounted() {
+    mounted(): void {
         if (this.routeOrigins.length === 0 && this.route.id) {
             // TODO: handle promise
             fetchPermOrigins(this.$store, this.route.id)
