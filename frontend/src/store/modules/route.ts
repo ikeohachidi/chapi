@@ -77,8 +77,10 @@ const route = {
                     .then((body: Response<void>) => {
                         if (body.successful) {
                             context.commit('updateRoute', requestObject)
+                            resolve()
+                        } else {
+                            reject(body.data)
                         }
-                        resolve()
                     })
                     .catch((error) => {
                         reject(error)
@@ -95,8 +97,10 @@ const route = {
                     .then((body: Response<void>) => {
                         if (body.successful) {
                             context.commit('removeRoute', routeId)
+                            resolve()
+                        } else {
+                            reject(body.data)
                         }
-                        resolve()
                     })
                     .catch((error) => {
                         reject(error)

@@ -31,6 +31,12 @@
                 </div>
             </tab>
         </tabs>
+
+        <div class="content-padding bg-gray-100 py-5">
+            <h1 class="text-2xl text-red-600 font-bold">Delete Route</h1>
+            <p class="mt-3">This operation is not reversible and will delete all the configuration set on this route</p>
+            <button class="danger mt-5" @click="deleteRoute">Delete</button>
+        </div>
     </section>
 </template>
 
@@ -44,7 +50,7 @@ import { Metadata, Request, Security } from './route-tabs'
 
 import Route from '@/types/Route'
 import Project from '@/types/Project';
-import { testRoute, getRoutes, fetchProjectRoutes } from '@/store/modules/route';
+import { testRoute, getRoutes, deleteRoute, fetchProjectRoutes } from '@/store/modules/route';
 import { getProjectById } from '@/store/modules/project';
 
 @Component({
@@ -110,6 +116,16 @@ export default class RouteView extends Vue {
         return '';
     }
 
+    private deleteRoute() {
+        if (!this.route) return;
+        deleteRoute(this.$store, this.route.id)
+            .then(() => {
+                this.$toast.success('Route deleted successfully');
+                this.$router.go(-1);
+            })
+            .catch(() => this.$toast.error('Error deleting route'))
+    }
+
     private testRouteConfig() {
         this.showConfigResult = true;
 
@@ -143,3 +159,9 @@ export default class RouteView extends Vue {
     }
 }
 </script>
+
+<style scoped> 
+section {
+    @apply min-h-screen;
+}
+</style>
