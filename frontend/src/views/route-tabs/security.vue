@@ -84,13 +84,15 @@ export default class Security extends Vue {
     }
 
     private savePermOrigin(permOrigin: PermOrigin): void {
-        // TODO: handle promise
         createPermOrigin(this.$store, permOrigin)
+            .then(() => this.$toast.success('Origin saved successfully'))
+            .catch(() => this.$toast.error('Error saving origin'));
     }
 
     private updatePermOrigin(permOrigin: PermOrigin): void {
-        // TODO: handle promise
         updatePermOrigin(this.$store, permOrigin)
+            .then(() => this.$toast.success('Origin updated successfully'))
+            .catch(() => this.$toast.error('Error updating origin'));
     }
 
     private deletePermOrigin(permOrigin: PermOrigin, index: number): void {
@@ -98,14 +100,15 @@ export default class Security extends Vue {
             this.routeOrigins.splice(index, 1);
             return;
         }
-        // TODO: handle promise
         deletePermOrigin(this.$store, permOrigin)
+            .then(() => this.$toast.success('Origin deleted successfully'))
+            .catch(() => this.$toast.error('Error deleting origin'));
     }
     
     mounted(): void {
         if (this.routeOrigins.length === 0 && this.route.id) {
-            // TODO: handle promise
             fetchPermOrigins(this.$store, this.route.id)
+                .catch(() => this.$toast.error('There was a problem fetching origins'));
         }
     }
 }
