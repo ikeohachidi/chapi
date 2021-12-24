@@ -1,5 +1,5 @@
 <template>
-    <div class="rounded-md bg-white border border-gray-200 p-4 hover:shadow-sm duration-75 relative">
+    <div class="route-card rounded-md bg-white border border-gray-200 p-4 hover:shadow-sm duration-75 relative">
         <p class="uppercase text-gray-400 absolute top-0 left-0 bg-gray-300 py-1 px-3 rounded-br-sm">{{ route.method }}</p>
         <div class="flex items-center mt-8">
             <span class="w-7 inline-block text-gray-500">
@@ -11,7 +11,7 @@
             <span class="w-7 inline-block text-gray-500">
                 <i class="ri-focus-3-line"></i>
             </span>
-            <p class="text-gray-900 w-full">{{ route.destination }}</p>
+            <p class="text-gray-900">{{ route.destination }}</p>
         </div>
         <p class="font-bold text-sm mt-4">DESCRIPTION</p>
         <p class="text-gray-900 w-full">
@@ -37,18 +37,17 @@ export default class RouteCard extends Vue {
     }
 
     get routeProject(): Project {
-        if (!this.route.id) {
+        if (!this.route.projectId) {
             return new Project();
         }
 
-        return getProjectById(this.$store)(this.route.id) as Project
+        return getProjectById(this.$store)(this.route.projectId) as Project
     }
 }
 </script>
 
 <style scoped>
-section {
-    border: 2px solid #e6e6e6;
-    background-color: #fff;
+.route-card p {
+    @apply overflow-ellipsis overflow-x-hidden;
 }
 </style>
