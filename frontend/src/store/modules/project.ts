@@ -38,6 +38,13 @@ const project = {
         addProject(state: ProjectState, project: Project): void {
             state.projects.push(project)
         },
+        updateProject(state: ProjectState, project: Project): void {
+            const index = state.projects.findIndex(p => p.id === project.id);
+
+            if (index !== -1) {
+                Object.assign(state.projects[index], project);
+            }
+        },
         deleteProject(state: ProjectState, projectId: number): void {
             const index = state.projects.findIndex(project => project.id === projectId);
 
@@ -71,13 +78,31 @@ const project = {
         },
         createProject(context: ProjectContext, project: Project): Promise<void> {
             return new Promise((resolve, reject) => {
-                fetch(`${API}/project?name=${project.name}`, { 
+                fetch(`${API}/project`, { 
                         method: 'POST',
-                        credentials: 'include'
+                        credentials: 'include',
+                        body: JSON.stringify(project)
                     })
                     .then((res) => res.json())
                     .then((body: Response<Project>) => {
                         context.commit('addProject', body.data);
+                        resolve()
+                    })
+                    .catch((error) => {
+                        reject(error)
+                    })
+            })
+        },
+        updateProject(context: ProjectContext, project: Project): Promise<void> {
+            return new Promise((resolve, reject) => {
+                fetch(`${API}/project`, { 
+                        method: 'PUT',
+                        credentials: 'include',
+                        body: JSON.stringify(project)
+                    })
+                    .then((res) => res.json())
+                    .then((body: Response<Project>) => {
+                        context.commit('updateProject', body.data);
                         resolve()
                     })
                     .catch((error) => {
@@ -129,6 +154,7 @@ export const getProjectById = read(project.getters.getProjectById);
 
 export const fetchUserProjects = dispatch(project.actions.fetchUserProjects);
 export const createProject = dispatch(project.actions.createProject);
+export const updateProject = dispatch(project.actions.updateProject);
 export const deleteProject = dispatch(project.actions.deleteProject);
 export const isProjectCreated = dispatch(project.actions.isProjectCreated);
 

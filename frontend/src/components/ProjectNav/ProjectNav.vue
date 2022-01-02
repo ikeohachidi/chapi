@@ -7,11 +7,26 @@
             v-if="showNewProjectModal"
             @close="showNewProjectModal = false"
             @action="createNewProject"
-            :enableOK="projectValidationErrors.length === 0"
+            :enableOK="nameValidationErrors(newProjectName).length === 0"
         >
             <input type="text" placeholder="chapi.com external api's" class="w-full" v-model="newProjectName" @input="isProjectCreated">
-            <template v-if="projectValidationErrors.length > 0">
-                <p class="text-sm error-text" v-for="(error, index) in projectValidationErrors" :key="index">{{ error }}</p>
+            <template v-if="nameValidationErrors(newProjectName).length > 0">
+                <p class="text-sm error-text" v-for="(error, index) in nameValidationErrors(newProjectName)" :key="index">{{ error }}</p>
+            </template>
+        </modal>
+
+        <modal
+            title="Update Project Name"
+            description="Enter new name of project"
+            actionButtonText="Update Project"
+            v-if="showEditModal"
+            @close="showEditModal = false"
+            @action="updateProject"
+            :enableOK="nameValidationErrors(editProjectName).length === 0"
+        >
+            <input type="text" :placeholder="projectToEdit.name" class="w-full" v-model="editProjectName" @input="isProjectCreated">
+            <template v-if="nameValidationErrors(editProjectName).length > 0">
+                <p class="text-sm error-text" v-for="(error, index) in nameValidationErrors(editProjectName)" :key="index">{{ error }}</p>
             </template>
         </modal>
 
@@ -31,14 +46,17 @@
         <ul class="pt-4 px-4 overflow-y-auto h-auto">
             <li 
                 v-for="project in filteredProjects" 
-                class="px-4 py-2 flex justify-between items-center cursor-pointer"
+                class="px-4 py-2 flex items-center cursor-pointer"
                 :class="{'active': selectedProject.id === project.id}"
                 :key="project.id"
                 @click="getProjectRoutes(project)"
             >
                 <span>{{ project.name }}</span>
-                <span class="inline-block text-xl text-gray-200 hover:text-red-500 transition duration-300" @click="deleteProject(project.id)">
+                <span class="inline-block text-xl ml-auto text-gray-200 hover:text-red-500 transition duration-300" @click="deleteProject(project.id)">
                     <i class="ri-delete-bin-line"></i>
+                </span>
+                <span class="inline-block text-xl ml-6 text-gray-200 hover:text-blue-500 transition duration-300" @click="initProjectNameEdit(project)">
+                    <i class="ri-edit-line"></i>
                 </span>
             </li>
         </ul>
@@ -50,7 +68,7 @@ import {Vue, Component, Watch} from 'vue-property-decorator';
 
 import Modal from '@/components/Modal/Modal.vue';
 
-import { projects, fetchUserProjects, createProject, deleteProject, isProjectCreated } from '@/store/modules/project';
+import { projects, fetchUserProjects, createProject, deleteProject, updateProject, isProjectCreated } from '@/store/modules/project';
 import { authenticatedUser } from '@/store/modules/user';
 import { getRoutes } from '@/store/modules/route';
 
@@ -73,16 +91,17 @@ export default class ProjectNav extends Vue {
 
     private projectSearchText = '';
 
+    // set by the isProjectCreated method further below
     private projectAlreadyExists = false;
 
     private protectedProjectNames: string[] = ['www', 'chapi', 'localhost'];
-    get projectValidationErrors(): string[] {
+    private nameValidationErrors(name: string): string[] {
         let errors = [];
 
-        if (this.newProjectName.length < 3) errors.push('Project name must have at least 3 characters');
+        if (name.length < 3) errors.push('Project name must have at least 3 characters');
         if (this.projectAlreadyExists) errors.push('Project already exists');
-        if (this.protectedProjectNames.includes(this.newProjectName.toLowerCase())) errors.push(`${this.newProjectName} is not allowed as a valid project name`);
-        if (/^[A-Za-z0-9-]*$/.test(this.newProjectName) === false) errors.push('A project name can only have letters, numbers and hyphen\n');
+        if (this.protectedProjectNames.includes(name.toLowerCase())) errors.push(`${name} is not allowed as a valid project name`);
+        if (/^[A-Za-z0-9-]*$/.test(name) === false) errors.push('A project name can only have letters, numbers and hyphen\n');
 
         return errors
     }
@@ -116,7 +135,7 @@ export default class ProjectNav extends Vue {
     }
 
     private createNewProject() {
-        if (this.projectValidationErrors.length > 0) return;
+        if (this.nameValidationErrors(this.newProjectName).length > 0) return;
 
         if (this.user) {
             createProject(this.$store, {
@@ -130,8 +149,28 @@ export default class ProjectNav extends Vue {
         }
     }
 
+
+    private editProjectName = '';
+    private showEditModal = false;
+    private projectToEdit = new Project();
+    private initProjectNameEdit(project: Project) {
+        this.editProjectName = '';
+        this.showEditModal = true;
+        Object.assign(this.projectToEdit, project);
+    }
+
     private deleteProject(projectId: number) {
         deleteProject(this.$store, projectId)
+    }
+
+    private updateProject() {
+        updateProject(this.$store, {
+            ...this.projectToEdit,
+            name: this.editProjectName
+        })
+        .then(() => {
+            this.showEditModal = false;
+        })
     }
 
     private isProjectCreated(event: InputEvent) {
