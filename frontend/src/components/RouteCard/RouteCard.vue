@@ -1,7 +1,7 @@
 <template>
     <div class="route-card rounded-md bg-white border border-gray-200 p-4 hover:shadow-sm duration-75 relative">
         <p class="uppercase text-gray-400 absolute top-0 left-0 bg-gray-300 py-1 px-3 rounded-br-sm">{{ route.method }}</p>
-        <span class="text-xl absolute top-1 right-2 cursor-pointer text-gray-200 hover:text-red-500 transition duration-300" @click="deleteRoute">
+        <span class="text-xl absolute top-1 right-2 cursor-pointer text-gray-200 hover:text-red-500 transition duration-300" @click.stop="deleteRoute">
             <i class="ri-delete-bin-line"></i>
         </span>
 
