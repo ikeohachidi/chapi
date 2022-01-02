@@ -18,15 +18,13 @@ HERE
 }
 
 build_fe() {
-	if [ ! -e frontend/dist ]; then
-		echo "Starting FE build process";
+	echo "Starting FE build process";
 
-		# npm processes mess up on newer version of node
-		export NODE_OPTIONS=--openssl-legacy-provider;
+	# npm processes mess up on newer version of node
+	export NODE_OPTIONS=--openssl-legacy-provider;
 
-		npm --prefix frontend install;
-		npm --prefix frontend run build;
-	fi
+	npm --prefix frontend install;
+	npm --prefix frontend run build;
 }
 
 dev_fe() {
@@ -49,7 +47,7 @@ build_project() {
 
 docker_build() {
 	docker image rm -f chapi;
-	docker build -t chapi .;
+	docker image build -t chapi .;
 }
 
 docker_run() {
@@ -71,7 +69,9 @@ docker_run() {
 	--network=host \
 	--restart=unless-stopped \
 	--name=chapi \
-	chapi
+	chapi;
+
+	docker system prune -f;
 }
 
 case $1 in
