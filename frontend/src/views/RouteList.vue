@@ -37,7 +37,7 @@
 </template>
 
 <script lang='ts'>
-import {Vue, Component} from 'vue-property-decorator';
+import {Vue, Component, Watch} from 'vue-property-decorator';
 
 import RouteCard from '@/components/RouteCard/RouteCard.vue';
 import Modal from '@/components/Modal/Modal.vue';
@@ -74,6 +74,10 @@ export default class RouteList extends Vue {
 
     get projectId(): number {
         return Number(this.$route.query['project']);
+    }
+    @Watch('projectId')
+    onProjectIdChange() {
+        if (this.projectRoutes.length === 0) this.fetchProjectRoutes();
     }
 
     get serverURL(): string {
@@ -152,14 +156,12 @@ export default class RouteList extends Vue {
     private fetchProjectRoutes(): void {
         fetchProjectRoutes(this.$store, this.projectId)
             .catch(error => {
-                window.console.log(error)
+                this.$toast.error(`Error getting project routes: ${error}`)
             })
     }
 
     mounted(): void {
-        if (this.projectRoutes.length === 0) {
-            this.fetchProjectRoutes()
-        }
+        if (this.projectRoutes.length === 0) this.fetchProjectRoutes();
     }
 }
 </script>
