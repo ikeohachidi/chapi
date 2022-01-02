@@ -146,6 +146,7 @@ export default class ProjectNav extends Vue {
                 this.showNewProjectModal = false;
                 this.newProjectName = '';
             })
+            .catch(() => this.$toast.error('Error creating project'));
         }
     }
 
@@ -161,6 +162,7 @@ export default class ProjectNav extends Vue {
 
     private deleteProject(projectId: number) {
         deleteProject(this.$store, projectId)
+        .catch(() => this.$toast.error('Error deleting project'));
     }
 
     private updateProject() {
@@ -171,6 +173,7 @@ export default class ProjectNav extends Vue {
         .then(() => {
             this.showEditModal = false;
         })
+        .catch(() => this.$toast.error('Error updating project'));
     }
 
     private isProjectCreated(event: InputEvent) {
