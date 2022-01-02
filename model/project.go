@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -30,7 +31,7 @@ func (p *Project) Create(db *sqlx.DB) (err error) {
 		return
 	}
 
-	row := stmt.QueryRowx(p.Name, p.UserID)
+	row := stmt.QueryRowx(strings.ToLower(p.Name), p.UserID)
 
 	err = row.Scan(&p.ID)
 	if err != nil {
@@ -48,7 +49,7 @@ func (p *Project) Update(db *sqlx.DB) (err error) {
 		return
 	}
 
-	_, err = stmt.Exec(p.Name, p.ID, p.UserID)
+	_, err = stmt.Exec(strings.ToLower(p.Name), p.ID, p.UserID)
 
 	return
 }

@@ -1,6 +1,7 @@
 package model
 
 import (
+	"strings"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -31,7 +32,7 @@ func (r *Route) Create(db *sqlx.DB) (err error) {
 		return
 	}
 
-	row := stmt.QueryRow(r.ProjectID, r.UserID, r.Method, r.Path, r.Destination, r.Body, r.Description)
+	row := stmt.QueryRow(r.ProjectID, r.UserID, r.Method, strings.ToLower(r.Path), r.Destination, r.Body, r.Description)
 
 	err = row.Scan(&r.ID)
 
@@ -45,7 +46,7 @@ func (r *Route) Update(db *sqlx.DB) (err error) {
 		WHERE id = $6 AND user_id = $7
 	`
 
-	_, err = db.Exec(queryStmt, r.Method, r.Path, r.Destination, r.Body, r.Description, r.ID, r.UserID)
+	_, err = db.Exec(queryStmt, r.Method, strings.ToLower(r.Path), r.Destination, r.Body, r.Description, r.ID, r.UserID)
 	if err != nil {
 		return
 	}
