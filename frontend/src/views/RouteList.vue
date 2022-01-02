@@ -76,7 +76,7 @@ export default class RouteList extends Vue {
         return Number(this.$route.query['project']);
     }
     @Watch('projectId')
-    onProjectIdChange() {
+    onProjectIdChange(): void {
         if (this.projectRoutes.length === 0) this.fetchProjectRoutes();
     }
 
