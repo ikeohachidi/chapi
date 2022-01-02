@@ -122,10 +122,10 @@ export default class RouteList extends Vue {
 
         const route: CreateRouteRequest = {
             projectId: this.projectId,
-            path: this.correctedPath,
+            path: this.correctedPath.toLowerCase(),
             method: this.method,
             description: this.description,
-            destination: this.destination
+            destination: this.destination.toLowerCase()
         }
 
         createRoute(this.$store, route)

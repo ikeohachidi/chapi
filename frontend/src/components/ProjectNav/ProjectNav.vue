@@ -139,7 +139,7 @@ export default class ProjectNav extends Vue {
 
         if (this.user) {
             createProject(this.$store, {
-                name: this.newProjectName,
+                name: this.newProjectName.toLowerCase(),
                 userId: this.user.id
             })
             .then(() => {
@@ -168,7 +168,7 @@ export default class ProjectNav extends Vue {
     private updateProject() {
         updateProject(this.$store, {
             ...this.projectToEdit,
-            name: this.editProjectName
+            name: this.editProjectName.toLowerCase()
         })
         .then(() => {
             this.showEditModal = false;
