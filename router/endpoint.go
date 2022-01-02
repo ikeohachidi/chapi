@@ -51,6 +51,7 @@ func HandleFrontend(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, nil)
 	}
 
+	c.Response().Header().Add("Cache-Control", "max-age=86400")
 	c.Response().Writer.Write(fileData)
 	return nil
 }
@@ -135,6 +136,7 @@ func buildRequest(request *http.Request, endpoint model.Endpoint) (*http.Request
 	for _, header := range endpoint.Headers {
 		req.Header.Add(header.Name, header.Value)
 	}
+	log.Println(destinationURL)
 
 	return req, nil
 }
