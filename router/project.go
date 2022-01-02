@@ -1,6 +1,7 @@
 package router
 
 import (
+	"encoding/json"
 	"net/http"
 	"strconv"
 
@@ -9,33 +10,41 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func CreateProject(c echo.Context) error {
+func SaveProject(c echo.Context) error {
 	app := c.(App)
-	name := app.QueryParam("name")
 	errResponseText := "couldn't save project"
 
-	if name == "" {
-		log.Error("name query parameter is not defined")
-		return c.JSON(http.StatusBadGateway, Response{"Bad Request", false})
-	}
-
-	if app.User.ID == 0 {
-		log.Error("user id doesn't exist")
-		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
-	}
-
 	project := model.Project{
-		Name:   name,
 		UserID: app.User.ID,
 	}
 
-	err := project.Create(app.Conn.Db)
+	err := json.NewDecoder(c.Request().Body).Decode(&project)
 	if err != nil {
-		log.Errorf("error creating project: %v", err)
-		return c.JSON(http.StatusInternalServerError, Response{
-			Data:       errResponseText,
-			Successful: false,
-		})
+		log.Errorf("couldn't decode request body: %v", err)
+		return c.JSON(http.StatusBadRequest, Response{errResponseText, false})
+	}
+
+	if c.Request().Method == http.MethodPost {
+		err := project.Create(app.Conn.Db)
+		if err != nil {
+			log.Errorf("error creating project: %v", err)
+
+			return c.JSON(http.StatusInternalServerError, Response{
+				Data:       errResponseText,
+				Successful: false,
+			})
+		}
+	}
+	if c.Request().Method == http.MethodPut {
+		err := project.Update(app.Conn.Db)
+		if err != nil {
+			log.Errorf("error creating project: %v", err)
+
+			return c.JSON(http.StatusInternalServerError, Response{
+				Data:       errResponseText,
+				Successful: false,
+			})
+		}
 	}
 
 	return c.JSON(http.StatusOK, Response{project, true})

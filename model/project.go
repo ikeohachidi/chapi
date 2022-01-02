@@ -42,6 +42,17 @@ func (p *Project) Create(db *sqlx.DB) (err error) {
 	return
 }
 
+func (p *Project) Update(db *sqlx.DB) (err error) {
+	stmt, err := db.Preparex(`UPDATE project SET "name"=$1 WHERE id=$2 AND user_id=$3`)
+	if err != nil {
+		return
+	}
+
+	_, err = stmt.Exec(p.Name, p.ID, p.UserID)
+
+	return
+}
+
 func (p *Project) ProjectExists(db *sqlx.DB) (exists bool, err error) {
 	stmt, err := db.Preparex(`
 		SELECT EXISTS (

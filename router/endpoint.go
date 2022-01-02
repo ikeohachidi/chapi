@@ -17,7 +17,12 @@ import (
 
 var (
 	ENVIRONMENT     = os.Getenv("ENV")
-	protectedRoutes = []string{"localhost", "www", "chapi"}
+	protectedRoutes = []string{
+		"localhost",
+		"www",
+		"chapi",
+		"webmail",
+	}
 )
 
 func HandleFrontend(c echo.Context) error {
