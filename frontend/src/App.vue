@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+		<p class="bg-green-600 text-white text-center font-bold py-3">Thanks for visiting, Please Note Chapi is still a work in progress.</p>
     <navbar/>
     <router-view/>
   </div>
