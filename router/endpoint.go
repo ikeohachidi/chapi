@@ -122,7 +122,7 @@ func RunProxy(c echo.Context, endpoint model.Endpoint) error {
 	return nil
 }
 
-func joinRequestBodies(request *http.Request, endpointConfigBody string) (*bytes.Reader, error) {
+func joinRequestBodies(request *http.Request, endpoint model.Endpoint) (*bytes.Reader, error) {
 	requestBody := make(map[string]interface{})
 	endpointBody := make(map[string]interface{})
 
@@ -131,7 +131,7 @@ func joinRequestBodies(request *http.Request, endpointConfigBody string) (*bytes
 		return nil, err
 	}
 
-	err = json.Unmarshal([]byte(endpointConfigBody), &endpointBody)
+	err = json.Unmarshal([]byte(endpoint.Body), &endpointBody)
 	if err != nil {
 		return nil, err
 	}
@@ -150,30 +150,39 @@ func joinRequestBodies(request *http.Request, endpointConfigBody string) (*bytes
 	return reader, nil
 }
 
+func joinRequestQueries(request *http.Request, endpoint model.Endpoint) (string, error) {
+	urlQuery := request.URL.RawQuery
+
+	fullURL := endpoint.Destination + "?"
+
+	if urlQuery != "" || len(endpoint.Queries) != 0 {
+		fullURL += urlQuery
+
+		for index, query := range endpoint.Queries {
+			if index != 0 {
+				fullURL += "&"
+			}
+
+			if index == 0 && urlQuery != "" {
+				fullURL += "&"
+			}
+
+			fullURL += fmt.Sprintf("%v=%v", query.Name, query.Value)
+		}
+	}
+
+	return fullURL, nil
+}
+
 func buildRequest(request *http.Request, endpoint model.Endpoint) (*http.Request, error) {
-	body, err := joinRequestBodies(request, endpoint.Body)
+	body, err := joinRequestBodies(request, endpoint)
 	if err != nil {
 		return nil, err
 	}
 
-	urlQuery := request.URL.RawQuery
-
-	destinationURL := endpoint.Destination + "?"
-
-	if urlQuery != "" || len(endpoint.Queries) != 0 {
-		destinationURL += urlQuery
-
-		for index, query := range endpoint.Queries {
-			if index != 0 {
-				destinationURL += "&"
-			}
-
-			if index == 0 && urlQuery != "" {
-				destinationURL += "&"
-			}
-
-			destinationURL += fmt.Sprintf("%v=%v", query.Name, query.Value)
-		}
+	destinationURL, err := joinRequestQueries(request, endpoint)
+	if err != nil {
+		return nil, err
 	}
 
 	req, err := http.NewRequest(endpoint.Method, destinationURL, body)
