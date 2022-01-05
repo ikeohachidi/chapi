@@ -1,6 +1,8 @@
 package router
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"io/fs"
 	"io/ioutil"
@@ -25,7 +27,20 @@ var (
 	}
 )
 
-func HandleFrontend(c echo.Context) error {
+func RunFrontendOrProxy(c echo.Context) error {
+	hostDomain := getSubdomain(c.Request().Host)
+
+	if hostDomain != "" && isDomainProtected(hostDomain) {
+		ServeStaticAssets((c))
+		return nil
+	}
+
+	InitiateService(c, hostDomain)
+
+	return nil
+}
+
+func ServeStaticAssets(c echo.Context) error {
 	app := c.(App)
 
 	url := c.Request().URL.String()
@@ -107,7 +122,40 @@ func RunProxy(c echo.Context, endpoint model.Endpoint) error {
 	return nil
 }
 
+func joinRequestBodies(request *http.Request, endpointConfigBody string) (*bytes.Reader, error) {
+	requestBody := make(map[string]interface{})
+	endpointBody := make(map[string]interface{})
+
+	err := json.NewDecoder(request.Body).Decode(&requestBody)
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.Unmarshal([]byte(endpointConfigBody), &endpointBody)
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range endpointBody {
+		requestBody[k] = v
+	}
+
+	body, err := json.Marshal(requestBody)
+	if err != nil {
+		return nil, err
+	}
+
+	reader := bytes.NewReader(body)
+
+	return reader, nil
+}
+
 func buildRequest(request *http.Request, endpoint model.Endpoint) (*http.Request, error) {
+	body, err := joinRequestBodies(request, endpoint.Body)
+	if err != nil {
+		return nil, err
+	}
+
 	urlQuery := request.URL.RawQuery
 
 	destinationURL := endpoint.Destination + "?"
@@ -128,7 +176,7 @@ func buildRequest(request *http.Request, endpoint model.Endpoint) (*http.Request
 		}
 	}
 
-	req, err := http.NewRequest(endpoint.Method, destinationURL, nil)
+	req, err := http.NewRequest(endpoint.Method, destinationURL, body)
 	if err != nil {
 		return nil, err
 	}
@@ -163,19 +211,4 @@ func isDomainProtected(domain string) bool {
 		}
 	}
 	return false
-}
-
-func RunFrontendOrProxy(c echo.Context) error {
-	hostDomain := getSubdomain(c.Request().Host)
-
-	log.Printf(" Host: %v", hostDomain)
-
-	if hostDomain != "" && isDomainProtected(hostDomain) {
-		HandleFrontend((c))
-		return nil
-	}
-
-	InitiateService(c, hostDomain)
-
-	return nil
 }
