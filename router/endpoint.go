@@ -35,7 +35,10 @@ func RunFrontendOrProxy(c echo.Context) error {
 		return nil
 	}
 
-	InitiateService(c, hostDomain)
+	err := InitiateService(c, hostDomain)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -127,13 +130,13 @@ func joinRequestBodies(request *http.Request, endpoint model.Endpoint) (*bytes.R
 	endpointBody := make(map[string]interface{})
 
 	err := json.NewDecoder(request.Body).Decode(&requestBody)
-	if err != nil {
-		return nil, err
+	if err != nil && strings.ToLower(err.Error()) != "eof" {
+		log.Warnf("error reading request body: %v", err)
 	}
 
-	err = json.Unmarshal([]byte(endpoint.Body), &endpointBody)
-	if err != nil {
-		return nil, err
+	err = json.NewDecoder(bytes.NewBufferString(endpoint.Body)).Decode(&endpointBody)
+	if err != nil && strings.ToLower(err.Error()) != "eof" {
+		log.Warnf("error reading endpoint body: %v", err)
 	}
 
 	for k, v := range endpointBody {
@@ -193,7 +196,6 @@ func buildRequest(request *http.Request, endpoint model.Endpoint) (*http.Request
 	for _, header := range endpoint.Headers {
 		req.Header.Add(header.Name, header.Value)
 	}
-	log.Println(destinationURL)
 
 	return req, nil
 }
