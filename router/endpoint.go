@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/fs"
 	"io/ioutil"
 	"net/http"
@@ -113,14 +114,19 @@ func RunProxy(c echo.Context, endpoint model.Endpoint) error {
 		return c.JSON(http.StatusInternalServerError, nil)
 	}
 
-	responseBody, err := ioutil.ReadAll(resp.Body)
+	responseBody := bytes.NewBuffer(nil)
+	responseSize, err := io.Copy(responseBody, resp.Body)
 	if err != nil {
 		log.Errorf("error reading response body: %v", err)
 		return c.JSON(http.StatusInternalServerError, nil)
 	}
-	resp.Body.Close()
 
-	c.Response().Write(responseBody)
+	if responseSize > 30000000 {
+		c.JSON(http.StatusOK, "Response too big")
+		return nil
+	}
+
+	c.Response().Write(responseBody.Bytes())
 
 	return nil
 }
