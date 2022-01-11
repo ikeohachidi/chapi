@@ -36,6 +36,12 @@ func RunFrontendOrProxy(c echo.Context) error {
 		return nil
 	}
 
+	method := c.Request().Method
+
+	if method != http.MethodPost && method != http.MethodGet {
+		return nil
+	}
+
 	err := InitiateService(c, hostDomain)
 	if err != nil {
 		return err
