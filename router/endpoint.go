@@ -205,9 +205,17 @@ func buildRequest(request *http.Request, endpoint model.Endpoint) (*http.Request
 		return nil, err
 	}
 
+	for header, headerValues := range request.Header {
+		for _, v := range headerValues {
+			req.Header.Add(header, v)
+		}
+	}
+
 	for _, header := range endpoint.Headers {
 		req.Header.Add(header.Name, header.Value)
 	}
+
+	log.Printf("haders %v", req.Header)
 
 	return req, nil
 }
