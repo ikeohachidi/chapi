@@ -65,7 +65,10 @@ type ValidatoinErrors = {
 export default class RouteList extends Vue {
     private path = '';
     get correctedPath(): string {
-        return this.path.replace(/\s+/g, '-')
+        let path = this.path.replace(/\s+/g, '-').replace(/\/+/g, '/') 
+
+        if (path[0] !== "") path = `/${path}`
+        return path;
     }
     private description = '' ;
     private destination = '';
