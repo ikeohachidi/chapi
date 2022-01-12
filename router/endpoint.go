@@ -215,8 +215,6 @@ func buildRequest(request *http.Request, endpoint model.Endpoint) (*http.Request
 		req.Header.Add(header.Name, header.Value)
 	}
 
-	log.Printf("haders %v", req.Header)
-
 	return req, nil
 }
 
