@@ -38,6 +38,10 @@ button.danger:hover {
     @apply text-red-400;
 }
 
+.inline-code {
+    @apply inline-block rounded-sm bg-gray-300 p-1 font-mono;
+}
+
 .content-padding {
     @apply px-16 md:px-36;
 }
