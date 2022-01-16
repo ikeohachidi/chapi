@@ -49,4 +49,11 @@ CREATE TABLE IF NOT EXISTS perm_origin (
 	route_id		INTEGER REFERENCES route(id) ON DELETE CASCADE,
 	url 			TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS request_config (
+	id 				SERIAL PRIMARY KEY,
+	route_id		INTEGER REFERENCES route(id) ON DELETE CASCADE,
+	merge_header	BOOL NOT NULL DEFAULT false,
+	merge_body		BOOL NOT NULL DEFAULT false
+)
 `
