@@ -8,18 +8,19 @@ import (
 )
 
 type Endpoint struct {
-	ID          uint        `json:"id" db:"id"`
-	ProjectID   uint        `json:"projectId" db:"project_id"`
-	UserID      uint        `json:"userId,omitempty" db:"user_id"`
-	Method      string      `json:"method" db:"method"`
-	Path        string      `json:"path" db:"path"`
-	Destination string      `json:"destination" db:"destination"`
-	Description string      `json:"description" db:"description"`
-	Body        string      `json:"body" db:"body"`
-	CreatedAt   time.Time   `json:"createdAt" db:"created_at"`
-	Queries     Queries     `json:"queries" db:"queries"`
-	Headers     Headers     `json:"headers" db:"headers"`
-	PermOrigins PermOrigins `json:"permOrigins" db:"perm_origins"`
+	ID            uint          `json:"id" db:"id"`
+	ProjectID     uint          `json:"projectId" db:"project_id"`
+	UserID        uint          `json:"userId,omitempty" db:"user_id"`
+	Method        string        `json:"method" db:"method"`
+	Path          string        `json:"path" db:"path"`
+	Destination   string        `json:"destination" db:"destination"`
+	Description   string        `json:"description" db:"description"`
+	Body          string        `json:"body" db:"body"`
+	CreatedAt     time.Time     `json:"createdAt" db:"created_at"`
+	Queries       Queries       `json:"queries" db:"queries"`
+	Headers       Headers       `json:"headers" db:"headers"`
+	PermOrigins   PermOrigins   `json:"permOrigins" db:"perm_origins"`
+	RequestConfig RequestConfig `json:"requestConfig" db:"request_config"`
 }
 
 func JSONUnmarshaller(src interface{}, dst interface{}) (err error) {
@@ -90,24 +91,32 @@ func (c *Conn) GetRouteRequestData(projectName, routePath string) (endpoint Endp
 		(
 			SELECT * FROM perm_origin
 			WHERE route_id = (SELECT id from route_id)
+		),
+
+		request_config_values(id, route_id, merge_header, merge_body) AS 
+		(
+			SELECT id, route_id, merge_header, merge_body FROM request_config
+			WHERE route_id = (SELECT id FROM route_id)
 		)
 
 		SELECT
 			route.*,
-			array_to_json(array_remove(array_agg(distinct(header_values)), NULL)) as "headers",
-			array_to_json(array_remove(array_agg(distinct(query_values)), NULL)) as "queries",
-			array_to_json(array_remove(array_agg(distinct(perm_origin_values)), NULL)) as "perm_origins"
+			array_to_json(array_remove(array_agg(distinct(header_values)), NULL)) AS "headers",
+			array_to_json(array_remove(array_agg(distinct(query_values)), NULL)) AS "queries",
+			array_to_json(array_remove(array_agg(distinct(perm_origin_values)), NULL)) AS "perm_origins",
+			row_to_json(request_config_values) AS "request_config"
 		FROM route
 		LEFT JOIN header_values ON header_values.route_id = route.id
 		LEFT JOIN query_values ON query_values.route_id = route.id
 		LEFT JOIN perm_origin_values ON perm_origin_values.route_id = route.id
+		LEFT JOIN request_config_values ON request_config_values.route_id = route.id
 		WHERE route.project_id = (
 				SELECT id FROM project_values
 			)
 		AND route.id = (
 			SELECT id from route_id
-		) 
-		GROUP BY route.id;
+		)
+		GROUP BY route.id, request_config_values.*;
 	`, PG_CRYPT_KEY))
 
 	if err != nil {
