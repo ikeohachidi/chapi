@@ -135,12 +135,12 @@ export default class RouteList extends Vue {
         createRoute(this.$store, route)
             .then(() => {
                 this.$toast.success('Route Created Successfully');
+                this.resetInputs();
+                this.showNewRouteModal = false;
             })
             .catch(() => {
                 this.$toast.error('Error creating route');
             })
-        this.showNewRouteModal = false;
-        this.resetInputs();
     }
 
     private goToRoute(route: Route): void {
