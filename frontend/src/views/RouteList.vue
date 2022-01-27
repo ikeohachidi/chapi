@@ -83,7 +83,9 @@ export default class RouteList extends Vue {
             return false;
         }
 
-        return true
+        return this.projectRoutes
+            .map(route => route.path.toLowerCase())
+            .includes(this.correctedPath.toLowerCase()) === false
     }
 
     get projectId(): number {
