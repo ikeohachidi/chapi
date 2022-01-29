@@ -76,9 +76,9 @@ export default class RouteList extends Vue {
     private method: HTTPMethod = HTTPMethod.GET;
     private showNewRouteModal = false;
 
-    get enableCreateRouteBtn() {
+    get enableCreateRouteBtn(): boolean {
         try {
-            const url = new URL(this.destination);
+            new URL(this.destination);
         } catch {
             return false;
         }

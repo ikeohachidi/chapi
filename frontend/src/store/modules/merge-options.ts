@@ -42,7 +42,7 @@ const store = {
     },
     actions: {
         fetchMergeOptions(context: MergeOptionsContext, routeId: number): Promise<MergeOptions> {
-            return new Promise<MergeOptions>((resolve, reject) => {
+            return new Promise<MergeOptions>((resolve) => {
                 fetch(`${API}/merge_options?route_id=${routeId}`, {
                     method: "GET"
                 })
@@ -54,7 +54,7 @@ const store = {
             })
         },
         updateMergeOption(context: MergeOptionsContext, payload: MutationPayload): Promise<void> {
-            return new Promise<void>((resolve, reject) => {
+            return new Promise<void>((resolve) => {
                 fetch(`${API}/merge_options`, {
                     method: "PUT",
                     body: JSON.stringify(payload)
