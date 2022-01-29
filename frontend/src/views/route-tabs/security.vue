@@ -39,6 +39,24 @@
                 <button class="mt-4 ml-auto" @click="addOrigin">Add URL</button>
             </div>
         </div>
+        <div class="grid grid-cols-2 gap-7 content-padding py-7 border-b border-gray-200">
+            <div>
+                <p class="section-name">Merge Request Body</p>
+                <p class="section-description">
+                    Allowing this option means that the request body sent when fetching the projects provided endpoint gets merged with the configured <span class="inline-code">request body</span> set in the
+                    <span class="inline-code">Request</span> tab
+                </p>
+                <input type="checkbox">
+            </div>
+            <div>
+                <p class="section-name">Merge Request Headers</p>
+                <p class="section-description">
+                    Allowing this option means that the request headers sent when fetching the projects provided endpoint gets merged with the configured <span class="inline-code">headers</span> set in the
+                    <span class="inline-code">Request</span> tab
+                </p>
+                <input type="checkbox">
+            </div>
+        </div>
     </section>    
 </template>
 

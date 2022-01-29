@@ -1,6 +1,8 @@
 package model
 
 import (
+	"context"
+	"database/sql"
 	"strings"
 	"time"
 
@@ -21,20 +23,34 @@ type Route struct {
 
 // Create will either create a new Route or update and existing one
 func (r *Route) Create(db *sqlx.DB) (err error) {
-	queryStmt := `
+
+	tx, err := db.BeginTxx(context.Background(), &sql.TxOptions{
+		Isolation: sql.LevelDefault,
+	})
+	if err != nil {
+		return
+	}
+	defer tx.Rollback()
+
+	var routeInsertId int
+	if err = tx.QueryRowx(`
 		INSERT INTO route (project_id, user_id, method, path, destination, body, description)
 		VALUES ($1, $2, $3, $4, $5, $6, $7)
 		RETURNING id
-	`
+	`, r.ProjectID, r.UserID, r.Method, strings.ToLower(r.Path), r.Destination, r.Body, r.Description).Scan(&routeInsertId); err != nil {
+		return
+	}
 
-	stmt, err := db.Preparex(queryStmt)
+	_, err = tx.Exec(`INSERT INTO request_config(route_id) VALUES($1)`, routeInsertId)
 	if err != nil {
 		return
 	}
 
-	row := stmt.QueryRow(r.ProjectID, r.UserID, r.Method, strings.ToLower(r.Path), r.Destination, r.Body, r.Description)
+	if err = tx.Commit(); err != nil {
+		return
+	}
 
-	err = row.Scan(&r.ID)
+	r.ID = uint(routeInsertId)
 
 	return
 }

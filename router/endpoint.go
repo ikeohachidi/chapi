@@ -137,17 +137,17 @@ func RunProxy(c echo.Context, endpoint model.Endpoint) error {
 	return nil
 }
 
-func joinRequestBodies(request *http.Request, endpoint model.Endpoint) (*bytes.Reader, error) {
+func constructRequestBodies(request *http.Request, endpoint model.Endpoint) (*bytes.Reader, error) {
 	requestBody := make(map[string]interface{})
 	endpointBody := make(map[string]interface{})
 
-	err := json.NewDecoder(request.Body).Decode(&requestBody)
-	if err != nil && strings.ToLower(err.Error()) != "eof" {
-		log.Warnf("error reading request body: %v", err)
+	if endpoint.RequestConfig.MergeBody {
+		if err := json.NewDecoder(request.Body).Decode(&requestBody); err != nil && err.Error() != "EOF" {
+			log.Warnf("error reading request body: %v", err)
+		}
 	}
 
-	err = json.NewDecoder(bytes.NewBufferString(endpoint.Body)).Decode(&endpointBody)
-	if err != nil && strings.ToLower(err.Error()) != "eof" {
+	if err := json.NewDecoder(bytes.NewBufferString(endpoint.Body)).Decode(&endpointBody); err != nil && err.Error() != "EOF" {
 		log.Warnf("error reading endpoint body: %v", err)
 	}
 
@@ -165,20 +165,18 @@ func joinRequestBodies(request *http.Request, endpoint model.Endpoint) (*bytes.R
 	return reader, nil
 }
 
-func joinRequestQueries(request *http.Request, endpoint model.Endpoint) (string, error) {
+func constructRequestQueries(request *http.Request, endpoint model.Endpoint) (string, error) {
 	urlQuery := request.URL.RawQuery
 
 	fullURL := endpoint.Destination + "?"
 
-	if urlQuery != "" || len(endpoint.Queries) != 0 {
-		fullURL += urlQuery
+	if endpoint.RequestConfig.MergeQuery && urlQuery != "" {
+		fullURL += urlQuery + "&"
+	}
 
+	if len(endpoint.Queries) != 0 {
 		for index, query := range endpoint.Queries {
 			if index != 0 {
-				fullURL += "&"
-			}
-
-			if index == 0 && urlQuery != "" {
 				fullURL += "&"
 			}
 
@@ -190,12 +188,12 @@ func joinRequestQueries(request *http.Request, endpoint model.Endpoint) (string,
 }
 
 func buildRequest(request *http.Request, endpoint model.Endpoint) (*http.Request, error) {
-	body, err := joinRequestBodies(request, endpoint)
+	body, err := constructRequestBodies(request, endpoint)
 	if err != nil {
 		return nil, err
 	}
 
-	destinationURL, err := joinRequestQueries(request, endpoint)
+	destinationURL, err := constructRequestQueries(request, endpoint)
 	if err != nil {
 		return nil, err
 	}
@@ -203,6 +201,14 @@ func buildRequest(request *http.Request, endpoint model.Endpoint) (*http.Request
 	req, err := http.NewRequest(endpoint.Method, destinationURL, body)
 	if err != nil {
 		return nil, err
+	}
+
+	if endpoint.RequestConfig.MergeHeader {
+		for header, headerValues := range request.Header {
+			for _, v := range headerValues {
+				req.Header.Add(header, v)
+			}
+		}
 	}
 
 	for _, header := range endpoint.Headers {

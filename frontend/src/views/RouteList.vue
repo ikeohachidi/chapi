@@ -5,6 +5,7 @@
             description="Please configure the base settings for this route"
             actionButtonText="Create Route"
             v-if="showNewRouteModal"
+            :enableOK="enableCreateRouteBtn"
             @close="showNewRouteModal = false"
             @action="createNewRoute"
         >
@@ -75,6 +76,18 @@ export default class RouteList extends Vue {
     private method: HTTPMethod = HTTPMethod.GET;
     private showNewRouteModal = false;
 
+    get enableCreateRouteBtn(): boolean {
+        try {
+            new URL(this.destination);
+        } catch {
+            return false;
+        }
+
+        return this.projectRoutes
+            .map(route => route.path.toLowerCase())
+            .includes(this.correctedPath.toLowerCase()) === false
+    }
+
     get projectId(): number {
         return Number(this.$route.query['project']);
     }
@@ -138,12 +151,12 @@ export default class RouteList extends Vue {
         createRoute(this.$store, route)
             .then(() => {
                 this.$toast.success('Route Created Successfully');
+                this.resetInputs();
+                this.showNewRouteModal = false;
             })
             .catch(() => {
                 this.$toast.error('Error creating route');
             })
-        this.showNewRouteModal = false;
-        this.resetInputs();
     }
 
     private goToRoute(route: Route): void {
