@@ -93,9 +93,9 @@ func (c *Conn) GetRouteRequestData(projectName, routePath string) (endpoint Endp
 			WHERE route_id = (SELECT id from route_id)
 		),
 
-		request_config_values(id, route_id, merge_header, merge_body) AS 
+		request_config_values(id, route_id, merge_header, merge_body, merge_query) AS 
 		(
-			SELECT id, route_id, merge_header, merge_body FROM request_config
+			SELECT id, route_id, merge_header, merge_body, merge_query FROM request_config
 			WHERE route_id = (SELECT id FROM route_id)
 		)
 
