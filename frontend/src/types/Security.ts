@@ -5,3 +5,9 @@ export interface PermOrigin {
 }
 
 export interface RoutePermOrigin {[routeId: number]: PermOrigin[]};
+
+export interface MergeOptions {
+    mergeHeader: boolean;
+    mergeQuery: boolean;
+    mergeBody: boolean;
+}

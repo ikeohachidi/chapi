@@ -7,6 +7,7 @@ import user from './modules/user';
 import query from './modules/query';
 import header from './modules/header';
 import permOrigin from './modules/perm-origin';
+import mergeOptions from './modules/merge-options';
 import StoreState from './storeState';
 
 Vue.use(Vuex)
@@ -18,6 +19,7 @@ export default new Vuex.Store<StoreState>({
     route,
     query,
     header,
-    permOrigin
+    permOrigin,
+    mergeOptions
   }
 })
