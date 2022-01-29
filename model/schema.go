@@ -55,6 +55,6 @@ CREATE TABLE IF NOT EXISTS request_config (
 	route_id			INTEGER REFERENCES route(id) ON DELETE CASCADE,
 	merge_header		BOOL NOT NULL DEFAULT false,
 	merge_body			BOOL NOT NULL DEFAULT false,
-	merge_query			BOOL NOT NULL DEFAULT false,
-)
+	merge_query			BOOL NOT NULL DEFAULT false
+);
 `
