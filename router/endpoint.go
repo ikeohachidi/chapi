@@ -141,7 +141,7 @@ func constructRequestBodies(request *http.Request, endpoint model.Endpoint) (*by
 	requestBody := make(map[string]interface{})
 	endpointBody := make(map[string]interface{})
 
-	if endpoint.RequestConfig.MergeBody {
+	if endpoint.MergeOptions.MergeBody {
 		if err := json.NewDecoder(request.Body).Decode(&requestBody); err != nil && err.Error() != "EOF" {
 			log.Warnf("error reading request body: %v", err)
 		}
@@ -170,7 +170,7 @@ func constructRequestQueries(request *http.Request, endpoint model.Endpoint) (st
 
 	fullURL := endpoint.Destination + "?"
 
-	if endpoint.RequestConfig.MergeQuery && urlQuery != "" {
+	if endpoint.MergeOptions.MergeQuery && urlQuery != "" {
 		fullURL += urlQuery + "&"
 	}
 
@@ -203,7 +203,7 @@ func buildRequest(request *http.Request, endpoint model.Endpoint) (*http.Request
 		return nil, err
 	}
 
-	if endpoint.RequestConfig.MergeHeader {
+	if endpoint.MergeOptions.MergeHeader {
 		for header, headerValues := range request.Header {
 			for _, v := range headerValues {
 				req.Header.Add(header, v)

@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS perm_origin (
 	url 			TEXT NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS request_config (
+CREATE TABLE IF NOT EXISTS merge_options (
 	id 					SERIAL PRIMARY KEY,
 	route_id			INTEGER REFERENCES route(id) ON DELETE CASCADE,
 	merge_header		BOOL NOT NULL DEFAULT false,
