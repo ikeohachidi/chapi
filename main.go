@@ -89,5 +89,8 @@ func main() {
 	e.PUT("/perm_origin", router.SavePermOrigins)
 	e.DELETE("/perm_origin", router.DeletePermOrigin)
 
+	e.GET("/merge_options", router.GetMergeOptions)
+	e.PUT("/merge_options", router.SaveMergeOptions)
+
 	e.Logger.Fatal(e.Start(":" + PORT))
 }
