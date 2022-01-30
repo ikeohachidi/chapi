@@ -104,7 +104,7 @@ func (c *Conn) GetRouteRequestData(projectName, routePath string) (endpoint Endp
 			array_to_json(array_remove(array_agg(distinct(header_values)), NULL)) AS "headers",
 			array_to_json(array_remove(array_agg(distinct(query_values)), NULL)) AS "queries",
 			array_to_json(array_remove(array_agg(distinct(perm_origin_values)), NULL)) AS "perm_origins",
-			row_to_json(merge_options_values) AS "request_config"
+			row_to_json(merge_options_values) AS "merge_options"
 		FROM route
 		LEFT JOIN header_values ON header_values.route_id = route.id
 		LEFT JOIN query_values ON query_values.route_id = route.id

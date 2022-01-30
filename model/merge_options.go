@@ -1,9 +1,11 @@
 package model
 
-import "github.com/jmoiron/sqlx"
+import (
+	"github.com/jmoiron/sqlx"
+)
 
 type MergeOptions struct {
-	Id          uint `json:"id", db:"id"`
+	ID          uint `json:"id" db:"id"`
 	RouteId     uint `json:"routeId" db:"route_id"`
 	MergeHeader bool `json:"mergeHeader" db:"merge_header"`
 	MergeBody   bool `json:"mergeBody" db:"merge_body"`
@@ -16,8 +18,9 @@ func (mo *MergeOptions) Scan(src interface{}) (err error) {
 }
 
 func (mo *MergeOptions) GetRouteMergeOptions(db *sqlx.DB) (err error) {
-	err = db.Select(&mo, `SELECT * FROM merge_options WHERE route_id = $1`, mo.RouteId)
-	if err != nil {
+	row := db.QueryRow(`SELECT merge_header, merge_query, merge_body FROM merge_options WHERE route_id = $1`, mo.RouteId)
+
+	if err = row.Scan(&mo.MergeHeader, &mo.MergeQuery, &mo.MergeBody); err != nil {
 		return
 	}
 
