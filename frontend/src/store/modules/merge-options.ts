@@ -53,11 +53,13 @@ const store = {
                 })
             })
         },
-        updateMergeOption(context: MergeOptionsContext, payload: MutationPayload): Promise<void> {
+        updateMergeOption(context: MergeOptionsContext, payload: MutationPayload & { routeId: number }): Promise<void> {
             return new Promise<void>((resolve) => {
-                fetch(`${API}/merge_options`, {
+                fetch(`${API}/merge_options?route_id=${payload.routeId}`, {
                     method: "PUT",
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify({ 
+                        [payload.property]: payload.state
+                    })
                 })
                 .then((res) => res.json())
                 .then((body: Response<void>) => {

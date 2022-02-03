@@ -43,7 +43,7 @@
             <div>
                 <p class="section-name flex">
                     Merge Request Body
-                    <input-switch class="ml-2"/>
+                    <input-switch class="ml-2" v-model="mergeOptions.mergeBody" @change="updateMergeOptions('mergeBody', $event)"/>
                 </p>
                 <p class="section-description">
                     Allowing this option means that the request body sent when fetching the projects provided endpoint gets merged with the configured <span class="inline-code">request body</span> set in the
@@ -53,7 +53,7 @@
             <div>
                 <p class="section-name flex">
                     Merge Request Headers
-                    <input-switch class="ml-2"/>
+                    <input-switch class="ml-2" v-model="mergeOptions.mergeHeader" @change="updateMergeOptions('mergeHeader', $event)"/>
                 </p>
                 <p class="section-description">
                     Allowing this option means that the request headers sent when fetching the projects provided endpoint gets merged with the configured <span class="inline-code">headers</span> set in the
@@ -68,9 +68,20 @@
 import { Vue, Component, Watch, Prop } from 'vue-property-decorator';
 import InputSwitch from '@/components/InputSwitch/InputSwitch.vue';
 
-import { createPermOrigin, deletePermOrigin, fetchPermOrigins, getPermOrigins, updatePermOrigin } from '@/store/modules/perm-origin';
+import { 
+    fetchPermOrigins,
+    createPermOrigin,
+    deletePermOrigin,
+    getPermOrigins,
+    updatePermOrigin
+} from '@/store/modules/perm-origin';
+import { 
+    getMergeOptions, 
+    fetchMergeOptions,
+    updateMergeOption
+} from '@/store/modules/merge-options';
 
-import { PermOrigin } from '@/types/Security';
+import { PermOrigin, MergeOptions } from '@/types/Security';
 import Route from '@/types/Route';
 
 @Component({
@@ -89,6 +100,19 @@ export default class Security extends Vue {
     @Watch('_routeOrigins', { deep: true })
     on_RouteOriginsChange(value: PermOrigin[]): void {
         this.routeOrigins = JSON.parse(JSON.stringify(value));
+    }
+
+    // private mergeOptions = new MergeOptions(); 
+    get mergeOptions(): MergeOptions {
+        return getMergeOptions(this.$store);
+    }
+
+    private updateMergeOptions(option: keyof MergeOptions, value: boolean): void {
+        updateMergeOption(this.$store, {
+            routeId: this.route.id,
+            property: option,
+            state: value
+        })
     }
 
     private addOrigin(): void {
@@ -133,10 +157,19 @@ export default class Security extends Vue {
     }
     
     mounted(): void {
-        if (this.routeOrigins.length === 0 && this.route.id) {
-            fetchPermOrigins(this.$store, this.route.id)
-                .catch(() => this.$toast.error('There was a problem fetching origins'));
+        if (this.route.id) {
+            Promise.all([
+                fetchPermOrigins(this.$store, this.route.id),
+                fetchMergeOptions(this.$store, this.route.id)
+            ])
+            .catch(error => {
+                this.$toast.error(error)
+            })
         }
+        // if (this.routeOrigins.length === 0 && this.route.id) {
+        //     fetchPermOrigins(this.$store, this.route.id)
+        //         .catch(() => this.$toast.error('There was a problem fetching origins'));
+        // }
     }
 }
 </script>
