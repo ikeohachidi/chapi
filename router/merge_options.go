@@ -34,6 +34,14 @@ func SaveMergeOptions(c echo.Context) error {
 
 	mergeOption := model.MergeOptions{}
 
+	routeId, err := strconv.Atoi(c.QueryParam("route_id"))
+	if err != nil {
+		log.Errorf("couldn't get merge options: %v", err)
+		return c.JSON(http.StatusInternalServerError, nil)
+	}
+
+	mergeOption.RouteId = uint(routeId)
+
 	if err := json.NewDecoder(c.Request().Body).Decode(&mergeOption); err != nil {
 		log.Errorf("couldn't update merge options: %v", err)
 		return c.JSON(http.StatusInternalServerError, nil)
