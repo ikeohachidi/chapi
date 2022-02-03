@@ -17,6 +17,7 @@ export default class InputSwitch extends Vue {
 	private updateValue() {
 		const update = this.value ? false : true;
 		this.$emit('input', update);
+		this.$emit('change', update);
 	}
 }
 </script>
