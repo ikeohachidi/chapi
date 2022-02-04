@@ -104,12 +104,12 @@ export default class Security extends Vue {
 
     // private mergeOptions = new MergeOptions(); 
     get mergeOptions(): MergeOptions {
-        return getMergeOptions(this.$store);
+        return getMergeOptions(this.$store)[this.route.id!] || new MergeOptions();
     }
 
-    private updateMergeOptions(option: keyof MergeOptions, value: boolean): void {
+    private updateMergeOptions(option: Omit<MergeOptions, 'routeId'>, value: boolean): void {
         updateMergeOption(this.$store, {
-            routeId: this.route.id,
+            routeId: this.route.id!,
             property: option,
             state: value
         })

@@ -1,43 +1,57 @@
-import Vue from 'vue';
 import { ActionContext } from 'vuex';
 import { getStoreAccessors } from 'vuex-typescript';
-import { MergeOptions } from '@/types/Security';
+import { MergeOptions, RouteMergeOption } from '@/types/Security';
 
 import StoreState from '@/store/storeState';
 
 import { Response } from '@/types/HTTP';
+import Vue from 'vue';
 
-type MergeOptionsContext = ActionContext<MergeOptions, StoreState>;
+type MergeOptionsContext = ActionContext<MergeOptionsState, StoreState>;
 
 const API = process.env.VUE_APP_SERVER;
 
-type MergeOptionsState = MergeOptions;
+type MergeOptionsState = {
+    options: RouteMergeOption
+};
 
 interface MutationPayload {
-    property: keyof MergeOptionsState;
+    routeId: number;
+    property: Omit<MergeOptions, 'routeId'>;
     state: boolean;
 }
 
 const state: MergeOptionsState = {
-    mergeHeader: false,
-    mergeQuery: false,
-    mergeBody: false
+    options: {} 
 }
 
 const store = {
     namespaced: true,
     state,
     getters: {
-        getMergeOptions(state: MergeOptionsState): MergeOptionsState {
-            return state;
-        }
+        getMergeOptions(state: MergeOptionsState): RouteMergeOption {
+            return state.options;
+        },
     },
     mutations: {
-        setState(state: MergeOptionsState, payload: MergeOptions): void {
-            state = payload;
+        setState(state: MergeOptionsState, payload: MergeOptions[]): void {
+            payload.forEach(item => {
+                Vue.set(state.options, item.routeId, item)
+            })
         },
         updateMergeOption(state: MergeOptionsState, payload: MutationPayload): void {
-            Vue.set(state, payload.property, payload.state);
+            const { options } = state;
+
+            if (payload.routeId in options) {
+                // @ts-ignore
+                options[payload.routeId][payload.property] = payload.state;
+                return;
+            }
+
+            options[payload.routeId] = new MergeOptions({
+                // @ts-ignore
+                [payload.property]: payload.state
+            })
         },
     },
     actions: {
@@ -48,16 +62,17 @@ const store = {
                 })
                 .then((res) => res.json())
                 .then((body: Response<MergeOptions>) => {
-                    if (body.successful) context.commit('setState', body.data);
+                    if (body.successful) context.commit('setState', [{ ...body.data, routeId }]);
                     resolve(body.data);
                 })
             })
         },
-        updateMergeOption(context: MergeOptionsContext, payload: MutationPayload & { routeId: number }): Promise<void> {
+        updateMergeOption(context: MergeOptionsContext, payload: MutationPayload): Promise<void> {
             return new Promise<void>((resolve) => {
                 fetch(`${API}/merge_options?route_id=${payload.routeId}`, {
                     method: "PUT",
                     body: JSON.stringify({ 
+                        // @ts-ignore
                         [payload.property]: payload.state
                     })
                 })
