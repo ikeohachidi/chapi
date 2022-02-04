@@ -39,7 +39,7 @@
                 <button class="mt-4 ml-auto" @click="addOrigin">Add URL</button>
             </div>
         </div>
-        <div class="grid grid-cols-2 gap-7 content-padding py-7 border-b border-gray-200">
+        <div class="grid grid-cols-3 gap-7 content-padding py-7 border-b border-gray-200">
             <div>
                 <p class="section-name flex">
                     Merge Request Body
@@ -57,6 +57,16 @@
                 </p>
                 <p class="section-description">
                     Allowing this option means that the request headers sent when fetching the projects provided endpoint gets merged with the configured <span class="inline-code">headers</span> set in the
+                    <span class="inline-code">Request</span> tab
+                </p>
+            </div>
+            <div>
+                <p class="section-name flex">
+                    Merge Request Query 
+                    <input-switch class="ml-2" v-model="mergeOptions.mergeQuery" @change="updateMergeOptions($event)"/>
+                </p>
+                <p class="section-description">
+                    Allowing this option means that all url queries added to this Chapi URL when making a request will be appended to the set <span class="inline-code">destination</span> URL
                     <span class="inline-code">Request</span> tab
                 </p>
             </div>
