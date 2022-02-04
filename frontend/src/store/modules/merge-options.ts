@@ -15,12 +15,6 @@ type MergeOptionsState = {
     options: RouteMergeOption
 };
 
-interface MutationPayload {
-    routeId: number;
-    property: Omit<MergeOptions, 'routeId'>;
-    state: boolean;
-}
-
 const state: MergeOptionsState = {
     options: {} 
 }
@@ -39,19 +33,8 @@ const store = {
                 Vue.set(state.options, item.routeId, item)
             })
         },
-        updateMergeOption(state: MergeOptionsState, payload: MutationPayload): void {
-            const { options } = state;
-
-            if (payload.routeId in options) {
-                // @ts-ignore
-                options[payload.routeId][payload.property] = payload.state;
-                return;
-            }
-
-            options[payload.routeId] = new MergeOptions({
-                // @ts-ignore
-                [payload.property]: payload.state
-            })
+        updateMergeOption(state: MergeOptionsState, payload: MergeOptions): void {
+            state.options[payload.routeId] = payload;
         },
     },
     actions: {
@@ -67,14 +50,11 @@ const store = {
                 })
             })
         },
-        updateMergeOption(context: MergeOptionsContext, payload: MutationPayload): Promise<void> {
+        updateMergeOption(context: MergeOptionsContext, payload: MergeOptions): Promise<void> {
             return new Promise<void>((resolve) => {
                 fetch(`${API}/merge_options?route_id=${payload.routeId}`, {
                     method: "PUT",
-                    body: JSON.stringify({ 
-                        // @ts-ignore
-                        [payload.property]: payload.state
-                    })
+                    body: JSON.stringify(payload)
                 })
                 .then((res) => res.json())
                 .then((body: Response<void>) => {

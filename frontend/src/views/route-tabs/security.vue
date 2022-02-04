@@ -43,7 +43,7 @@
             <div>
                 <p class="section-name flex">
                     Merge Request Body
-                    <input-switch class="ml-2" v-model="mergeOptions.mergeBody" @change="updateMergeOptions('mergeBody', $event)"/>
+                    <input-switch class="ml-2" v-model="mergeOptions.mergeBody" @change="updateMergeOptions($event)"/>
                 </p>
                 <p class="section-description">
                     Allowing this option means that the request body sent when fetching the projects provided endpoint gets merged with the configured <span class="inline-code">request body</span> set in the
@@ -53,7 +53,7 @@
             <div>
                 <p class="section-name flex">
                     Merge Request Headers
-                    <input-switch class="ml-2" v-model="mergeOptions.mergeHeader" @change="updateMergeOptions('mergeHeader', $event)"/>
+                    <input-switch class="ml-2" v-model="mergeOptions.mergeHeader" @change="updateMergeOptions($event)"/>
                 </p>
                 <p class="section-description">
                     Allowing this option means that the request headers sent when fetching the projects provided endpoint gets merged with the configured <span class="inline-code">headers</span> set in the
@@ -107,12 +107,8 @@ export default class Security extends Vue {
         return getMergeOptions(this.$store)[this.route.id!] || new MergeOptions();
     }
 
-    private updateMergeOptions(option: Omit<MergeOptions, 'routeId'>, value: boolean): void {
-        updateMergeOption(this.$store, {
-            routeId: this.route.id!,
-            property: option,
-            state: value
-        })
+    private updateMergeOptions(): void {
+        updateMergeOption(this.$store, this.mergeOptions)
     }
 
     private addOrigin(): void {
