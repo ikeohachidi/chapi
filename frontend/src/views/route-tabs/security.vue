@@ -158,18 +158,16 @@ export default class Security extends Vue {
     
     mounted(): void {
         if (this.route.id) {
-            Promise.all([
-                fetchPermOrigins(this.$store, this.route.id),
-                fetchMergeOptions(this.$store, this.route.id)
-            ])
+            const requests: Promise<unknown>[] = [];
+
+            if (!this.mergeOptions.routeId) requests.push(fetchMergeOptions(this.$store, this.route.id));
+            if (this.routeOrigins.length === 0) requests.push(fetchPermOrigins(this.$store, this.route.id))
+
+            Promise.all(requests)
             .catch(error => {
                 this.$toast.error(error)
             })
         }
-        // if (this.routeOrigins.length === 0 && this.route.id) {
-        //     fetchPermOrigins(this.$store, this.route.id)
-        //         .catch(() => this.$toast.error('There was a problem fetching origins'));
-        // }
     }
 }
 </script>
