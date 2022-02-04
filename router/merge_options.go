@@ -26,7 +26,7 @@ func GetMergeOptions(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, nil)
 	}
 
-	return c.JSON(http.StatusOK, mergeOptions)
+	return c.JSON(http.StatusOK, Response{Successful: true, Data: mergeOptions})
 }
 
 func SaveMergeOptions(c echo.Context) error {
@@ -52,5 +52,5 @@ func SaveMergeOptions(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, nil)
 	}
 
-	return c.JSON(http.StatusOK, nil)
+	return c.JSON(http.StatusOK, Response{Successful: true, Data: nil})
 }
